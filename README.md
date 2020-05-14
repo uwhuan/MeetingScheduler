@@ -30,7 +30,7 @@ Students/people who are working in a team, and want to schedule a time for meeti
 * Create groups and manage group meeting
 * Automatically generate the earliest meeting time based on people’s availability 
 
-#### Stretch-goal features:
+### Stretch-goal features:
 
 * Allow user to put preference in the time slot
 * Automatically generate a suggested meeting time based on people’s preference
