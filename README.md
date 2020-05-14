@@ -6,8 +6,9 @@ Group Members: Nalin Gupta, Divit Jawa, Lizzy Chen, Huan Wang
 
 # Project description
 
-​		Meeting Schedule helps teams solve the difficulty of scheduling a meeting time. It’s a simple but powerful app for anyone who works or studies in a team. Each of the team members only needs to select their available time within the range the host set, then the app will automatically calculate the best available time for everyone. 
-​		There are many similar apps online, such as when2meet, Google Calendar. We want to build a new one that is more user-friendly and powerful than when2meet, but more simple and light-weighted than Google Calendar. We want to build a more instinctive and simple UI so that anyone with an invite link can use the app easily. At the same time, we want to offer more useful functionalities for the registered user, such as managing their events, creating new events, sharing, etc. 
+Meeting Schedule helps teams solve the difficulty of scheduling a meeting time. It’s a simple but powerful app for anyone who works or studies in a team. Each of the team members only needs to select their available time within the range the host set, then the app will automatically calculate the best available time for everyone. 
+​There are many similar apps online, such as when2meet, Google Calendar. We want to build a new one that is more user-friendly and powerful than when2meet, but more simple and light-weighted than Google Calendar. We want to build a more instinctive and simple UI so that anyone with an invite link can use the app easily. At the same time, we want to offer more useful functionalities for the registered user, such as managing their events, creating new events, sharing, etc. 
+
 ### Audience 
 Students/people who are working in a team, and want to schedule a time for meeting.
 
@@ -42,7 +43,7 @@ Students/people who are working in a team, and want to schedule a time for meeti
 
 # Architecture:
 
-!["architecture"](Architecture Diagram.png)
+<img src="Architecture Diagram.png" alt="architecture_diagram" style="zoom:75%;" />
 
 Details: https://app.lucidchart.com/invitations/accept/3428ba22-3cdc-4bc7-9db3-323686848dbc
 
@@ -151,7 +152,7 @@ Details: https://app.lucidchart.com/invitations/accept/3428ba22-3cdc-4bc7-9db3-3
 
 ### /v1/groups
 
-* Post: Creates a new user account 
+* Post: Creates a new group 
   * 201: Successfully created user.
   * 400: The request body is not a valid user.
   * 415: Content-Type not JSON
