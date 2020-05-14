@@ -138,20 +138,16 @@ Details: https://app.lucidchart.com/invitations/accept/3428ba22-3cdc-4bc7-9db3-3
   * 404 The meeting wasn’t found
   * 415: Unsupported media type
   * 500: Internal server error
-
-
-   * PUT/PATCH: Edit the current meeting
-     * 200 ok: Returns the updated state of the meeting
-     * 400 no updated: No new information was provided
-     * 401 unauthorized: Could not verify user
-
-
-   * DELETE : Delete the meeting or ends the meeting
-     * 200: Successfully ends the meeting session
-     * 401: Could not verify player the user
-     * 404: The meeting  wasn’t found
-     * 500: Internal Server Error 
-       Group
+ * PUT/PATCH: Edit the current meeting
+   * 200 ok: Returns the updated state of the meeting
+   * 400 no updated: No new information was provided
+   * 401 unauthorized: Could not verify user
+ * DELETE : Delete the meeting or ends the meeting
+   * 200: Successfully ends the meeting session
+   * 401: Could not verify player the user
+   * 404: The meeting  wasn’t found
+   * 500: Internal Server Error 
+     Group
 
 ### /v1/groups
 
@@ -194,16 +190,12 @@ Details: https://app.lucidchart.com/invitations/accept/3428ba22-3cdc-4bc7-9db3-3
   * 404 The meeting wasn’t found
   * 415: Unsupported media type
   * 500: Internal server error
-
-
-   * PUT/PATCH: Edit the current meeting
-     * 200  Returns the updated state of the meeting
-     * 400 no updated: No new information was provided
-     * 401 unauthorized: Could not verify user
-
-
-   * DELETE : Delete the meeting or ends the meeting
-     * 200: Successfully ends the meeting session
-     * 401: Could not verify player the user
-     * 404: The meeting  wasn’t found
-     * 500: Internal Server Error
+ * PUT/PATCH: Edit the current meeting
+   * 200  Returns the updated state of the meeting
+   * 400 no updated: No new information was provided
+   * 401 unauthorized: Could not verify user
+ * DELETE : Delete the meeting or ends the meeting
+   * 200: Successfully ends the meeting session
+   * 401: Could not verify player the user
+   * 404: The meeting  wasn’t found
+   * 500: Internal Server Error
