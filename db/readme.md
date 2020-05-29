@@ -1,0 +1,1 @@
+This file contains sql schemas for dababase
