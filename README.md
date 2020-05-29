@@ -6,8 +6,9 @@ Group Members: Nalin Gupta, Divit Jawa, Lizzy Chen, Huan Wang
 
 # Project description
 
-​		Meeting Schedule helps teams solve the difficulty of scheduling a meeting time. It’s a simple but powerful app for anyone who works or studies in a team. Each of the team members only needs to select their available time within the range the host set, then the app will automatically calculate the best available time for everyone. 
-​		There are many similar apps online, such as when2meet, Google Calendar. We want to build a new one that is more user-friendly and powerful than when2meet, but more simple and light-weighted than Google Calendar. We want to build a more instinctive and simple UI so that anyone with an invite link can use the app easily. At the same time, we want to offer more useful functionalities for the registered user, such as managing their events, creating new events, sharing, etc. 
+Meeting Schedule helps teams solve the difficulty of scheduling a meeting time. It’s a simple but powerful app for anyone who works or studies in a team. Each of the team members only needs to select their available time within the range the host set, then the app will automatically calculate the best available time for everyone. 
+​There are many similar apps online, such as when2meet, Google Calendar. We want to build a new one that is more user-friendly and powerful than when2meet, but more simple and light-weighted than Google Calendar. We want to build a more instinctive and simple UI so that anyone with an invite link can use the app easily. At the same time, we want to offer more useful functionalities for the registered user, such as managing their events, creating new events, sharing, etc. 
+
 ### Audience 
 Students/people who are working in a team, and want to schedule a time for meeting.
 
@@ -29,7 +30,7 @@ Students/people who are working in a team, and want to schedule a time for meeti
 * Create groups and manage group meeting
 * Automatically generate the earliest meeting time based on people’s availability 
 
-#### Stretch-goal features:
+### Stretch-goal features:
 
 * Allow user to put preference in the time slot
 * Automatically generate a suggested meeting time based on people’s preference
@@ -42,7 +43,7 @@ Students/people who are working in a team, and want to schedule a time for meeti
 
 # Architecture:
 
-!["architecture"](Architecture Diagram.png)
+<img src="Architecture Diagram.png" alt="architecture_diagram" style="zoom:75%;" />
 
 Details: https://app.lucidchart.com/invitations/accept/3428ba22-3cdc-4bc7-9db3-323686848dbc
 
@@ -138,24 +139,20 @@ Details: https://app.lucidchart.com/invitations/accept/3428ba22-3cdc-4bc7-9db3-3
   * 404 The meeting wasn’t found
   * 415: Unsupported media type
   * 500: Internal server error
-
-
-   * PUT/PATCH: Edit the current meeting
-     * 200 ok: Returns the updated state of the meeting
-     * 400 no updated: No new information was provided
-     * 401 unauthorized: Could not verify user
-
-
-   * DELETE : Delete the meeting or ends the meeting
-     * 200: Successfully ends the meeting session
-     * 401: Could not verify player the user
-     * 404: The meeting  wasn’t found
-     * 500: Internal Server Error 
-       Group
+ * PUT/PATCH: Edit the current meeting
+   * 200 ok: Returns the updated state of the meeting
+   * 400 no updated: No new information was provided
+   * 401 unauthorized: Could not verify user
+ * DELETE : Delete the meeting or ends the meeting
+   * 200: Successfully ends the meeting session
+   * 401: Could not verify player the user
+   * 404: The meeting  wasn’t found
+   * 500: Internal Server Error 
+     Group
 
 ### /v1/groups
 
-* Post: Creates a new user account 
+* Post: Creates a new group 
   * 201: Successfully created user.
   * 400: The request body is not a valid user.
   * 415: Content-Type not JSON
@@ -194,16 +191,12 @@ Details: https://app.lucidchart.com/invitations/accept/3428ba22-3cdc-4bc7-9db3-3
   * 404 The meeting wasn’t found
   * 415: Unsupported media type
   * 500: Internal server error
-
-
-   * PUT/PATCH: Edit the current meeting
-     * 200  Returns the updated state of the meeting
-     * 400 no updated: No new information was provided
-     * 401 unauthorized: Could not verify user
-
-
-   * DELETE : Delete the meeting or ends the meeting
-     * 200: Successfully ends the meeting session
-     * 401: Could not verify player the user
-     * 404: The meeting  wasn’t found
-     * 500: Internal Server Error
+ * PUT/PATCH: Edit the current meeting
+   * 200  Returns the updated state of the meeting
+   * 400 no updated: No new information was provided
+   * 401 unauthorized: Could not verify user
+ * DELETE : Delete the meeting or ends the meeting
+   * 200: Successfully ends the meeting session
+   * 401: Could not verify player the user
+   * 404: The meeting  wasn’t found
+   * 500: Internal Server Error
