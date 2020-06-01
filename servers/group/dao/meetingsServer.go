@@ -75,9 +75,9 @@ func (store *Store) InsertMeeting(meeting *model.Meeting) (int64, error) {
 
 }
 
-//UpdateMeetingName applies updates to the given meeting  ID
+//UpdateMeeting applies updates to the given meeting  ID
 //and returns any errors
-func (store *Store) UpdateMeetingName(id int64, update *model.Meeting) error {
+func (store *Store) UpdateMeeting(id int64, update *model.Meeting) error {
 	_, err := store.Db.Exec(queryUpdateMeeting, update.Name, update.Description, id)
 	return err
 }
