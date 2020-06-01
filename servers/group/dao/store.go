@@ -1,12 +1,18 @@
 package dao
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"log"
 
 	model "MeetingScheduler/servers/group/model"
 )
+
+// Store is a struct of sql dababase
+type Store struct {
+	Db *sql.DB
+}
 
 //ErrTargetNotFound is returned when the target can't be found
 var ErrTargetNotFound = errors.New("Target not found")
@@ -60,8 +66,8 @@ type GroupStore interface {
 
 //ScheduleStore represents a store for Schedules
 type ScheduleStore interface {
-	//GetMeeingByID returns the Schedule with the given ID
-	GetScheduleByMeetingID(id int64) (*model.Schedule, error)
+	//GetAllSchedule returns all schedules under a meeting
+	GetAllSchedule(meetingID int64) ([]model.Schedule, error)
 
 	//GetScheduleByID returns the Schedule with the given ID
 	GetScheduleByID(id int64) (*model.Schedule, error)
@@ -75,9 +81,6 @@ type ScheduleStore interface {
 
 	//Delete deletes the Schedule with the given ID
 	DeleteSchedule(id int64) error
-
-	//GetMostVote returns the most popular schedules
-	GetMostVote(id int64) ([]model.Schedule, error)
 }
 
 func dbError(msg string, err error) error {
