@@ -11,7 +11,7 @@ type GroupDB struct {
 	Db *sql.DB
 }
 
-var queryGetGroup = "SELECT groupID, name, description, creator, createDate, FROM groups where groupID = ?"
+var queryGetGroup = "SELECT groupID, name, description, creatorID, createDate, FROM groups where groupID = ?"
 var queryInsertGroup = "INSERT INTO groups VALUES (?,?,?,?)"
 var queryUpdateGroup = "UPDATE groups SET name = ?, description = ? WHERE groupID = ?"
 var queryDeleteGroup = "DELETE FROM groups WHERE groupID = ?"
@@ -21,14 +21,14 @@ var queryGetAllMembers = "SELECT uid, email, userName, firstName, lastName FROM 
 //GetGroupByID returns the Group with the given ID
 func (store *GroupDB) GetGroupByID(id int64) (*model.Group, error) {
 	var group *model.Group
-	err := store.Db.QueryRow(queryGetGroup, id).Scan(group.GroupID, group.Name, group.Description, group.Creator, group.CreateDate)
+	err := store.Db.QueryRow(queryGetGroup, id).Scan(group.GroupID, group.Name, group.Description, group.CreatorID, group.CreateDate)
 	return group, err
 }
 
 //InsertGroup inserts the Group into the database, and returns
 //the newly-inserted GroupID, complete with the DBMS-assigned ID
 func (store *GroupDB) InsertGroup(group *model.Group) (int64, error) {
-	res, err := store.Db.Exec(queryInsertGroup, group.Name, group.Description, group.Creator, time.Now)
+	res, err := store.Db.Exec(queryInsertGroup, group.Name, group.Description, group.CreatorID, time.Now)
 	if err != nil {
 		return 0, nil
 	}
