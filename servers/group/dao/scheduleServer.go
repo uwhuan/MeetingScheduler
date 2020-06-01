@@ -12,7 +12,7 @@ var queryIncreaseVote = "UPDATE schedule SET votes = votes+1 WHERE scheduleID = 
 var queryCheckVotes = "SELECT votes FROM schedule WHERE scheduleID = ?"
 
 //GetAllSchedule returns all schedules unser a meeting
-func (store *Store) GetAllSchedule(meetingID int64) ([]model.Schedule, error) {
+func (store *Store) GetAllSchedule(meetingID int64) ([]*model.Schedule, error) {
 
 	var schedules []*model.Schedule
 	//uid, email, userName, firstName, lastName
@@ -39,8 +39,8 @@ func (store *Store) GetAllSchedule(meetingID int64) ([]model.Schedule, error) {
 //GetScheduleByID returns the Schedule with the given ID
 func (store *Store) GetScheduleByID(id int64) (*model.Schedule, error) {
 	var sch model.Schedule
-	_, err := store.Db.QueryRow(queryGetSchedule, id).Scan(&sch.ScheduleID, &sch.StartTime, &sch.EndTime, &sch.MeetingID, &sch.Votes)
-	return sch, err
+	err := store.Db.QueryRow(queryGetSchedule, id).Scan(&sch.ScheduleID, &sch.StartTime, &sch.EndTime, &sch.MeetingID, &sch.Votes)
+	return &sch, err
 }
 
 //CreateSchedule the Schedule into the database, and returns
@@ -56,13 +56,16 @@ func (store *Store) CreateSchedule(schedule *model.Schedule) (int64, error) {
 //Vote increase the votes for a Schedule
 func (store *Store) Vote(id int64) (int, error) {
 	_, err := store.Db.Exec(queryIncreaseVote, id)
+	if err != nil {
+		return 0, err
+	}
 	voteCount := 0
-	err := store.Db.QueryRow(queryCheckVotes, id).Scan(voteCount)
-	return voteCount, error
+	err = store.Db.QueryRow(queryCheckVotes, id).Scan(voteCount)
+	return voteCount, err
 }
 
 //DeleteSchedule deletes the Schedule with the given ID
-func (store *Store) DeleteSchedule(id int64) error{
+func (store *Store) DeleteSchedule(id int64) error {
 	_, err := store.Db.Exec(queryDeleteSchedule, id)
 	return err
 }

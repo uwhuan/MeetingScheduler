@@ -14,7 +14,7 @@ func main() {
 	ADDR := os.Getenv("ADDR")
 
 	//context
-	ctx := h.HandlerContext{}
+	ctx := h.Context{}
 
 	// handlers
 	route := mux.NewRouter()
