@@ -34,3 +34,24 @@ create table if not exists logentry (
     SignInTime datetime not null,
     IPAddress varchar(32) not null
 )
+
+create table if not exists groups (
+    GroupID int not null primary key,
+    Description varchar(500),
+    Name varchar(100),
+    CreatorID int not null,
+    CreateDate varchar(300)
+)
+
+create table if not exists schedule (
+    ScheduleID int not null primary key,
+    MeetingID int not null primary key,
+    StartTime varchar(300) not null,
+    EndTime varchar(300) not null,
+    Votes int
+)
+
+create table if not exists membership (
+    uid int not null primary key,
+    GroupID int not null primary key
+)
