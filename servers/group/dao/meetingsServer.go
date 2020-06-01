@@ -2,16 +2,10 @@ package dao
 
 import (
 	model "MeetingScheduler/servers/group/model"
-	"database/sql"
 	"fmt"
 	"log"
 	"time"
 )
-
-// MeetingDB is a struct of sql dababase
-type MeetingDB struct {
-	Db *sql.DB
-}
 
 var queryGetMeeting = "SELECT meetingID, name, description, creatorID, startTime, endTime, createDate, confirmed, groupID FROM meetings where meetingID = ?"
 var queryGetAllByGroup = "SELECT name, creatorID, startTime, endTime, createDate, confirmed, meetingID, groupID FROM meetings where groupID = ?"
@@ -28,7 +22,7 @@ var defaultConfrim = 0
 // var defaultErrorMsg = "handle meetings"
 
 //GetMeetingByID returns the meeting with the given ID
-func (store *MeetingDB) GetMeetingByID(id int64) (*model.Meeting, error) {
+func (store *Store) GetMeetingByID(id int64) (*model.Meeting, error) {
 
 	var meeting model.Meeting
 	// Execute the query
@@ -40,7 +34,7 @@ func (store *MeetingDB) GetMeetingByID(id int64) (*model.Meeting, error) {
 }
 
 //GetAllMeetingsOfGroup returns all the meeting with the given groupID
-func (store *MeetingDB) GetAllMeetingsOfGroup(id int64) ([]*model.Meeting, error) {
+func (store *Store) GetAllMeetingsOfGroup(id int64) ([]*model.Meeting, error) {
 	var meetings []*model.Meeting
 	rows, err := store.Db.Query(queryGetAllByGroup, id)
 	if err != nil {
@@ -66,7 +60,7 @@ func (store *MeetingDB) GetAllMeetingsOfGroup(id int64) ([]*model.Meeting, error
 
 //InsertMeeting inserts the meeting into the database, and returns
 //the newly-inserted meetingID, complete with the DBMS-assigned ID
-func (store *MeetingDB) InsertMeeting(meeting *model.Meeting) (int64, error) {
+func (store *Store) InsertMeeting(meeting *model.Meeting) (int64, error) {
 
 	// Execute the query
 	res, err := store.Db.Exec(queryInsertMeeting, meeting.Name, meeting.Description, meeting.CreatorID,
@@ -83,26 +77,26 @@ func (store *MeetingDB) InsertMeeting(meeting *model.Meeting) (int64, error) {
 
 //UpdateMeetingName applies updates to the given meeting  ID
 //and returns any errors
-func (store *MeetingDB) UpdateMeetingName(id int64, update *model.Meeting) error {
+func (store *Store) UpdateMeetingName(id int64, update *model.Meeting) error {
 	_, err := store.Db.Exec(queryUpdateMeeting, update.Name, update.Description, id)
 	return err
 }
 
 //DeleteMeeting deletes the meeting with the given ID
-func (store *MeetingDB) DeleteMeeting(id int64) error {
+func (store *Store) DeleteMeeting(id int64) error {
 	_, err := store.Db.Exec(queryDeleteMeeting, id)
 	return err
 }
 
 // ConfirmMeeting set the confirmed start and end time of a meeting
 // and set the confirmed flag to be true
-func (store *MeetingDB) ConfirmMeeting(id int64, schedule *model.Schedule) error {
+func (store *Store) ConfirmMeeting(id int64, schedule *model.Schedule) error {
 	_, err := store.Db.Exec(queryConfirmMeeting, parseTime(schedule.StartTime), parseTime(schedule.EndTime), id)
 	return err
 }
 
 //GetAllParticipants get all participants of a meeting
-func (store *MeetingDB) GetAllParticipants(meetingID int64) ([]*model.User, error) {
+func (store *Store) GetAllParticipants(meetingID int64) ([]*model.User, error) {
 	var users []*model.User
 	//uid, email, userName, firstName, lastName
 	rows, err := store.Db.Query(queryGetAllParticipants, meetingID)
