@@ -13,17 +13,17 @@ type MeetingDB struct {
 	Db *sql.DB
 }
 
-var queryGetMeeting = "SELECT meetingID, name, description, creator, startTime, endTime, createDate, confirmed, groupID FROM meetings where meetingID = ?"
-var queryGetAllByGroup = "SELECT name, creator, startTime, endTime, createDate, confirmed, meetingID, groupID FROM meetings where groupID = ?"
-var queryInsertMeeting = "INSERT INTO meetings(name, description, creator, startTime, endTime, createDate, confirmed, groupID) VALUES (?,?,?,?,?,?,?,?)"
+var queryGetMeeting = "SELECT meetingID, name, description, creatorID, startTime, endTime, createDate, confirmed, groupID FROM meetings where meetingID = ?"
+var queryGetAllByGroup = "SELECT name, creatorID, startTime, endTime, createDate, confirmed, meetingID, groupID FROM meetings where groupID = ?"
+var queryInsertMeeting = "INSERT INTO meetings(name, description, creatorID, startTime, endTime, createDate, confirmed, groupID) VALUES (?,?,?,?,?,?,?,?)"
 var queryUpdateMeeting = "UPDATE meetings SET name = ?, description = ? WHERE id = ?"
 var queryDeleteMeeting = "DELETE FROM meetings WHERE id = ?"
-var queryConfirmMeeting = "UPDATE meetings SET confirmed = true, startTime = ?, endTime = ? WHERE id = ?"
+var queryConfirmMeeting = "UPDATE meetings SET confirmed = 1, startTime = ?, endTime = ? WHERE id = ?"
 
 var queryGetAllParticipants = "SELECT uid, email, userName, firstName, lastName FROM user INNER JOIN meetingparticipant M ON M.uid =user.uid WHERE M.meetingID = ?"
 
 var defaultTime = "Jan 1, 2000 at 0:00pm (PST)"
-var defaultConfrim = false
+var defaultConfrim = 0
 
 // var defaultErrorMsg = "handle meetings"
 
@@ -33,7 +33,7 @@ func (store *MeetingDB) GetMeetingByID(id int64) (*model.Meeting, error) {
 	var meeting model.Meeting
 	// Execute the query
 	err := store.Db.QueryRow(queryGetMeeting, id).Scan(&meeting.MeetingID, &meeting.Name,
-		&meeting.Description, &meeting.Creator, &meeting.StartTime, &meeting.EndTime,
+		&meeting.Description, &meeting.CreatorID, &meeting.StartTime, &meeting.EndTime,
 		&meeting.CreateDate, &meeting.Confirmed, &meeting.GroupID)
 	return &meeting, err
 
@@ -51,7 +51,7 @@ func (store *MeetingDB) GetAllMeetingsOfGroup(id int64) ([]*model.Meeting, error
 
 	for rows.Next() {
 		var meeting model.Meeting
-		err = rows.Scan(&meeting.Name, &meeting.Description, &meeting.Creator,
+		err = rows.Scan(&meeting.Name, &meeting.Description, &meeting.CreatorID,
 			&meeting.StartTime, &meeting.EndTime, &meeting.CreateDate, &meeting.Confirmed,
 			&meeting.MeetingID, &meeting.GroupID)
 		if err != nil {
@@ -69,7 +69,7 @@ func (store *MeetingDB) GetAllMeetingsOfGroup(id int64) ([]*model.Meeting, error
 func (store *MeetingDB) InsertMeeting(meeting *model.Meeting) (int64, error) {
 
 	// Execute the query
-	res, err := store.Db.Exec(queryInsertMeeting, meeting.Name, meeting.Description, meeting.Creator,
+	res, err := store.Db.Exec(queryInsertMeeting, meeting.Name, meeting.Description, meeting.CreatorID,
 		parseTime(defaultTime), parseTime(defaultTime), time.Now, defaultConfrim, meeting.GroupID)
 	if err != nil {
 		return 0, err

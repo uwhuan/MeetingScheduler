@@ -6,9 +6,9 @@ type Meeting struct {
 	GroupID     int64  `json:"groupID"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
-	Creator     int64  `json:"creator"`
+	CreatorID   int64  `json:"creatorID"`
 	StartTime   string `json:"startTime"`
 	EndTime     string `json:"endTime"`
 	CreateDate  string `json:"createDate"`
-	Confirmed   bool   `json:"confirmed"` // defalt false
+	Confirmed   int    `json:"confirmed"` // defalt false
 }

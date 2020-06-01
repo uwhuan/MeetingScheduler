@@ -8,6 +8,6 @@ type Group struct {
 	GroupID     int64     `json:"groupID"`
 	Description string    `json:"description"`
 	Name        string    `json:"name"`
-	Creator     int64     `json:"creator"`
+	CreatorID   int64     `json:"creatorID"`
 	CreateDate  time.Time `json:"createDate"`
 }
