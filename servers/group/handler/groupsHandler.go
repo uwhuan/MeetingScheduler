@@ -12,7 +12,8 @@ var typeText = "text/plain"
 // GroupsHandler handles request for creating a group
 func (ctx *Context) GroupsHandler(w http.ResponseWriter, r *http.Request) {
 
-	if !isRegistered(w, r) {
+	uid := getCurrentUser(w, r)
+	if uid < 0 {
 		return
 	}
 
@@ -42,7 +43,7 @@ func (ctx *Context) GroupsHandler(w http.ResponseWriter, r *http.Request) {
 	//TBD: add any validation?
 
 	// Add to database
-	id, err := ctx.store.InsertGroup(postedGroup)
+	id, err := ctx.Store.InsertGroup(postedGroup)
 	if dbErrorHandle(w, "Insert group", err) {
 		return
 	}
@@ -57,7 +58,8 @@ func (ctx *Context) GroupsHandler(w http.ResponseWriter, r *http.Request) {
 // manage the information of this group. Other users in the group can view the member, meetings
 func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request) {
 
-	if !isRegistered(w, r) {
+	uid := getCurrentUser(w, r)
+	if uid < 0 {
 		return
 	}
 
@@ -74,7 +76,7 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// read group data from db
-	group, err := ctx.store.GetGroupByID(id)
+	group, err := ctx.Store.GetGroupByID(id)
 	if !dbErrorHandle(w, "Get group", err) {
 		return
 	}
@@ -98,7 +100,7 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 	if r.Method == "PATCH" {
 
 		// Check authorization
-		if !isGroupCreator(group, ctx.uid, w) {
+		if !isGroupCreator(group, uid, w) {
 			return
 		}
 
@@ -120,13 +122,13 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 		}
 
 		// Update information in database
-		err := ctx.store.UpdateGroup(newGroup)
+		err := ctx.Store.UpdateGroup(newGroup)
 		if !dbErrorHandle(w, "Update group", err) {
 			return
 		}
 
 		// TBD: get the newly updated group
-		group, err = ctx.store.GetGroupByID(group.GroupID)
+		group, err = ctx.Store.GetGroupByID(group.GroupID)
 		if !dbErrorHandle(w, "Get updated group", err) {
 			return
 		}
@@ -145,11 +147,11 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 	if r.Method == "DELETE" {
 
 		// Check authorization
-		if !isGroupCreator(group, ctx.uid, w) {
+		if !isGroupCreator(group, uid, w) {
 			return
 		}
 
-		err := ctx.store.DeleteGroup(id)
+		err := ctx.Store.DeleteGroup(id)
 		if !dbErrorHandle(w, "Delete group", err) {
 			return
 		}
@@ -165,7 +167,8 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 // information
 func (ctx *Context) GroupsMeetingHandler(w http.ResponseWriter, r *http.Request) {
 
-	if !isRegistered(w, r) {
+	uid := getCurrentUser(w, r)
+	if uid < 0 {
 		return
 	}
 
@@ -183,7 +186,7 @@ func (ctx *Context) GroupsMeetingHandler(w http.ResponseWriter, r *http.Request)
 
 	// GET method returns all the meetings
 	if r.Method == "GET" {
-		meetings, err := ctx.store.GetAllMeetingsOfGroup(id)
+		meetings, err := ctx.Store.GetAllMeetingsOfGroup(id)
 		if !dbErrorHandle(w, "Get all meetings", err) {
 			return
 		}
@@ -219,7 +222,7 @@ func (ctx *Context) GroupsMeetingHandler(w http.ResponseWriter, r *http.Request)
 		}
 
 		// Add into database
-		id, err := ctx.store.InsertMeeting(meeting)
+		id, err := ctx.Store.InsertMeeting(meeting)
 		if !dbErrorHandle(w, "Insert meeting", err) {
 			return
 		}
@@ -240,7 +243,8 @@ func (ctx *Context) GroupsMeetingHandler(w http.ResponseWriter, r *http.Request)
 // SpecificGroupsMeetingHandler handles request for a specific group meeting with given id.
 func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.Request) {
 
-	if !isRegistered(w, r) {
+	uid := getCurrentUser(w, r)
+	if uid < 0 {
 		return
 	}
 
@@ -256,7 +260,7 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 	}
 
 	if r.Method == "GET" {
-		meetings, err := ctx.store.GetMeetingByID(id)
+		meetings, err := ctx.Store.GetMeetingByID(id)
 		if !dbErrorHandle(w, "Get meetings", err) {
 			return
 		}
@@ -287,13 +291,13 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 		}
 
 		//Update in db
-		err := ctx.store.UpdateMeeting(id, meeting)
+		err := ctx.Store.UpdateMeeting(id, meeting)
 		if !dbErrorHandle(w, "Update meeting", err) {
 			return
 		}
 
 		// TBD
-		meeting, err = ctx.store.GetMeetingByID(id)
+		meeting, err = ctx.Store.GetMeetingByID(id)
 		if dbErrorHandle(w, "get updated meeting", err) {
 			return
 		}
@@ -315,18 +319,18 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 		}
 
 		// Check authorization
-		group, err := ctx.store.GetGroupByID(gid)
-		if !dbErrorHandle(w, "get group", err) || !isGroupCreator(group, ctx.uid, w) {
+		group, err := ctx.Store.GetGroupByID(gid)
+		if !dbErrorHandle(w, "get group", err) || !isGroupCreator(group, uid, w) {
 			return
 		}
 
-		meeting, err := ctx.store.GetMeetingByID(id)
-		if !dbErrorHandle(w, "get meeting", err) || !isMeetingCreator(meeting, ctx.uid, w) {
+		meeting, err := ctx.Store.GetMeetingByID(id)
+		if !dbErrorHandle(w, "get meeting", err) || !isMeetingCreator(meeting, uid, w) {
 			return
 		}
 
 		// delete in database
-		err = ctx.store.DeleteMeeting(id)
+		err = ctx.Store.DeleteMeeting(id)
 		if !dbErrorHandle(w, "delete meeting", err) {
 			return
 		}

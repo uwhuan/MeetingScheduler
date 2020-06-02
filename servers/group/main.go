@@ -1,10 +1,12 @@
 package main
 
 import (
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
 
+	"MeetingScheduler/servers/group/dao"
 	h "MeetingScheduler/servers/group/handler"
 
 	"github.com/gorilla/mux"
@@ -12,9 +14,19 @@ import (
 
 func main() {
 	ADDR := os.Getenv("ADDR")
+	dsn := os.Getenv("DSN")
+
+	// Open MySQL database
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		log.Fatalf("Error opening database: %v", err)
+	}
+	defer db.Close()
 
 	//context
-	ctx := h.Context{}
+	ctx := h.Context{
+		Store: &dao.Store{db},
+	}
 
 	// handlers
 	route := mux.NewRouter()

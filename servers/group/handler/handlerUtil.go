@@ -26,14 +26,25 @@ func isContentTypeJSON(w http.ResponseWriter, r *http.Request) bool {
 	return true
 }
 
-func isRegistered(w http.ResponseWriter, r *http.Request) bool {
-	if len(r.Header.Get("X-user")) == 0 {
+// TBD: header
+func getCurrentUser(w http.ResponseWriter, r *http.Request) int64 {
+	xuser := r.Header.Get("X-user")
+	if len(xuser) == 0 {
 		errMsg := fmt.Sprintf("User not registered\n")
 		log.Printf(errMsg)
 		http.Error(w, errMsg, http.StatusBadRequest)
-		return false
+		return -1
 	}
-	return true
+
+	id, err := strconv.ParseInt(xuser, 10, 64)
+	if err != nil {
+		errMsg := fmt.Sprintf("Unable to convert [%s] to id: %v\n", xuser, err)
+		log.Printf(errMsg)
+		http.Error(w, errMsg, http.StatusBadRequest)
+		return -1
+	}
+
+	return id
 }
 
 func getIDfromURL(w http.ResponseWriter, r *http.Request) int64 {
