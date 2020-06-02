@@ -9,6 +9,7 @@ import (
 	"MeetingScheduler/servers/group/dao"
 	h "MeetingScheduler/servers/group/handler"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 )
 

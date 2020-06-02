@@ -17,7 +17,7 @@ func (ctx *Context) GroupsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Only support POST method
+	//TODO: add GET method
 	if r.Method != "POST" {
 		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
 		return
