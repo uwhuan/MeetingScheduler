@@ -11,6 +11,11 @@ var typeText = "text/plain"
 
 // GroupsHandler handles request for creating a group
 func (ctx *Context) GroupsHandler(w http.ResponseWriter, r *http.Request) {
+
+	if !isRegistered(w, r) {
+		return
+	}
+
 	// Only support POST method
 	if r.Method != "POST" {
 		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
@@ -51,6 +56,11 @@ func (ctx *Context) GroupsHandler(w http.ResponseWriter, r *http.Request) {
 // SpecificGroupsHandler handles request for a specific group with given id. Only creator can
 // manage the information of this group. Other users in the group can view the member, meetings
 func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request) {
+
+	if !isRegistered(w, r) {
+		return
+	}
+
 	// Only support GET PATCH DELETE method
 	if r.Method != "GET" && r.Method != "PATCH" && r.Method != "DELETE" {
 		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
@@ -77,6 +87,8 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 		if response == nil {
 			return
 		}
+
+		//TODO: also add all meetings, members associated
 
 		// write into response
 		respondWithHeader(w, typeJSON, response, http.StatusOK)
@@ -152,6 +164,11 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 // for the group. The creator of a meeting or the creator of a group can modify the meeting
 // information
 func (ctx *Context) GroupsMeetingHandler(w http.ResponseWriter, r *http.Request) {
+
+	if !isRegistered(w, r) {
+		return
+	}
+
 	// Only support GET POST method
 	if r.Method != "GET" && r.Method != "POST" {
 		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
@@ -222,6 +239,11 @@ func (ctx *Context) GroupsMeetingHandler(w http.ResponseWriter, r *http.Request)
 
 // SpecificGroupsMeetingHandler handles request for a specific group meeting with given id.
 func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.Request) {
+
+	if !isRegistered(w, r) {
+		return
+	}
+
 	if r.Method != "GET" && r.Method != "PATCH" && r.Method != "DELETE" {
 		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
 		return
@@ -244,6 +266,8 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 		if res == nil {
 			return
 		}
+
+		//TODO: also add all members associated
 
 		// response
 		respondWithHeader(w, typeJSON, res, http.StatusOK)
