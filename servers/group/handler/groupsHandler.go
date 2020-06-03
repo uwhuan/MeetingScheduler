@@ -254,6 +254,7 @@ func (ctx *Context) GroupsMeetingHandler(w http.ResponseWriter, r *http.Request)
 			return
 		}
 		meeting.CreatorID = uid
+		meeting.GroupID = gid
 
 		// Add into database
 		mid, err := ctx.Store.InsertMeeting(meeting)
@@ -397,4 +398,8 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 		//response
 		respondWithHeader(w, typeText, []byte("Successfully deleted"), http.StatusOK)
 	}
+}
+
+func (ctx *Context) ScheduleHandler(w http.ResponseWriter, r *http.Request) {
+
 }

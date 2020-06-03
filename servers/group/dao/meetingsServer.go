@@ -16,6 +16,8 @@ var queryConfirmMeeting = "UPDATE meetings SET confirmed = 1, startTime = ?, end
 
 var queryGetAllParticipants = "SELECT user.uid, email, userName, firstName, lastName FROM user INNER JOIN meetingparticipant M ON M.uid =user.uid WHERE M.meetingID = ?"
 
+var queryInsertParticipant = "INSERT INTO meetingparticipant(MeetingID, uid) VALUES(?,?)"
+
 var defaultTime = "Mon Jan 2 15:04:05 -0700 MST 2006"
 var defaultConfrim = 0
 
@@ -71,7 +73,16 @@ func (store *Store) InsertMeeting(meeting *model.Meeting) (int64, error) {
 
 	// Get the auto-incremented id
 	id, err := res.LastInsertId()
-	return id, err
+	if err != nil {
+		return 0, err
+	}
+
+	_, err = store.Db.Exec(queryInsertParticipant, id, meeting.CreatorID)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 
 }
 
