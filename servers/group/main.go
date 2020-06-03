@@ -22,7 +22,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error opening database: %v", err)
 	}
-	defer db.Close()
 
 	//context
 	ctx := h.Context{
@@ -32,7 +31,7 @@ func main() {
 	// handlers
 	route := mux.NewRouter()
 	route.HandleFunc("/v1/groups", ctx.GroupsHandler)
-	route.HandleFunc("/v1/groups/", ctx.SpecificGroupsHandler)
+	route.HandleFunc("/v1/groups/{group_id}", ctx.SpecificGroupsHandler)
 	route.HandleFunc("/v1/groups/{group_id}/meetings", ctx.GroupsMeetingHandler)
 	route.HandleFunc("/v1/groups/{group_id}/meetings/{meeting_id}", ctx.SpecificGroupsMeetingHandler)
 

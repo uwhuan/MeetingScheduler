@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"path"
 	"strconv"
 )
 
@@ -29,6 +28,7 @@ func isContentTypeJSON(w http.ResponseWriter, r *http.Request) bool {
 // TBD: header
 func getCurrentUser(w http.ResponseWriter, r *http.Request) int64 {
 	xuser := r.Header.Get("X-user")
+
 	if len(xuser) == 0 {
 		errMsg := fmt.Sprintf("User not registered\n")
 		log.Printf(errMsg)
@@ -47,20 +47,8 @@ func getCurrentUser(w http.ResponseWriter, r *http.Request) int64 {
 	return id
 }
 
-func getIDfromURL(w http.ResponseWriter, r *http.Request) int64 {
-	urlID := path.Base(r.URL.Path)
-	id, err := strconv.ParseInt(urlID, 10, 64)
-	if err != nil {
-		errMsg := fmt.Sprintf("Unable to convert [%s] to id: %v\n", urlID, err)
-		log.Printf(errMsg)
-		http.Error(w, errMsg, http.StatusBadRequest)
-		return -1
-	}
-	return id
-}
-
-func getGroupIDfromURL(w http.ResponseWriter, r *http.Request) int64 {
-	urlID := path.Base(path.Dir(r.URL.Path))
+func getIDfromURL(w http.ResponseWriter, r *http.Request, urlID string) int64 {
+	//urlID := path.Base(path.Dir(r.URL.Path))
 	id, err := strconv.ParseInt(urlID, 10, 64)
 	if err != nil {
 		errMsg := fmt.Sprintf("Unable to convert [%s] to id: %v\n", urlID, err)
@@ -99,6 +87,7 @@ func getRequestBody(w http.ResponseWriter, r *http.Request) []byte {
 		http.Error(w, errMsg, http.StatusBadRequest)
 		return nil
 	}
+	// log.Printf("Get body: %s\n", string(body))
 	defer r.Body.Close()
 	return body
 }
@@ -125,9 +114,11 @@ func marshalRep(w http.ResponseWriter, obj interface{}) []byte {
 }
 
 func respondWithHeader(w http.ResponseWriter, ctType string, response []byte, code int) {
+
 	w.Header().Set(contentType, ctType)
 	w.WriteHeader(code)
 	w.Write(response)
+	// log.Printf("Respond success")
 }
 
 func dbErrorHandle(w http.ResponseWriter, errorPart string, err error) bool {
@@ -138,8 +129,4 @@ func dbErrorHandle(w http.ResponseWriter, errorPart string, err error) bool {
 		return false
 	}
 	return true
-}
-
-func errorHandler(msg string, err error) {
-
 }

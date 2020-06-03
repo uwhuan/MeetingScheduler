@@ -24,12 +24,12 @@ func (store *Store) GetAllSchedule(meetingID int64) ([]*model.Schedule, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var sch *model.Schedule
-		err = rows.Scan(sch.StartTime, sch.EndTime, sch.MeetingID)
+		var sch model.Schedule
+		err = rows.Scan(&sch.StartTime, &sch.EndTime, &sch.MeetingID)
 		if err != nil {
 			return schedules, err
 		}
-		schedules = append(schedules, sch)
+		schedules = append(schedules, &sch)
 	}
 
 	// get any error encountered during iteration
@@ -60,7 +60,7 @@ func (store *Store) Vote(id int64) (int, error) {
 		return 0, err
 	}
 	voteCount := 0
-	err = store.Db.QueryRow(queryCheckVotes, id).Scan(voteCount)
+	err = store.Db.QueryRow(queryCheckVotes, id).Scan(&voteCount)
 	return voteCount, err
 }
 
