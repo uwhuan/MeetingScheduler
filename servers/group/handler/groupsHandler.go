@@ -401,5 +401,10 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 }
 
 func (ctx *Context) ScheduleHandler(w http.ResponseWriter, r *http.Request) {
+	// Only support GET POST method
+	if r.Method != "GET" && r.Method != "POST" {
+		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
+		return
+	}
 
 }
