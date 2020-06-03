@@ -3,7 +3,9 @@ package handler
 import (
 	"MeetingScheduler/servers/group/model"
 	"fmt"
+	"log"
 	"net/http"
+	"path"
 )
 
 var errUnsuportMethod = "Unsupported Methods"
@@ -18,39 +20,53 @@ func (ctx *Context) GroupsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//TODO: add GET method
-	if r.Method != "POST" {
+	if r.Method != "POST" && r.Method != "GET" {
 		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
 		return
 	}
 
-	// Only support JSON body
-	if !isContentTypeJSON(w, r) {
-		return
+	if r.Method == "POST" {
+		// Only support JSON body
+		if !isContentTypeJSON(w, r) {
+			return
+		}
+
+		// Read response body
+		body := getRequestBody(w, r)
+		if body == nil {
+			return
+		}
+
+		// Unmarshal body to group object
+		postedGroup := &model.Group{}
+		if !unmarshalBody(w, body, postedGroup) {
+			return
+		}
+
+		// Add to database
+		id, err := ctx.Store.InsertGroup(postedGroup)
+		if !dbErrorHandle(w, "Insert group", err) {
+			return
+		}
+
+		// Response: TBD
+		respMsg := fmt.Sprintf("successfully create group, id: %d\n", id)
+		respondWithHeader(w, typeJSON, []byte(respMsg), http.StatusCreated)
 	}
 
-	// Read response body
-	body := getRequestBody(w, r)
-	if body == nil {
-		return
+	if r.Method == "GET" {
+		group, err := ctx.Store.GetAllGroups()
+		if !dbErrorHandle(w, "Get all groups", err) {
+			return
+		}
+
+		res := marshalRep(w, group)
+		if res == nil {
+			return
+		}
+
+		respondWithHeader(w, typeJSON, res, http.StatusCreated)
 	}
-
-	// Unmarshal body to group object
-	postedGroup := &model.Group{}
-	if !unmarshalBody(w, body, postedGroup) {
-		return
-	}
-
-	//TBD: add any validation?
-
-	// Add to database
-	id, err := ctx.Store.InsertGroup(postedGroup)
-	if dbErrorHandle(w, "Insert group", err) {
-		return
-	}
-
-	// Response: TBD
-	respMsg := fmt.Sprintf("successfully create group, id: %d\n", id)
-	respondWithHeader(w, typeJSON, []byte(respMsg), http.StatusCreated)
 
 }
 
@@ -70,13 +86,14 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// parse group id
-	id := getIDfromURL(w, r)
-	if id < 0 {
+	urlID := path.Base(r.URL.Path)
+	gid := getIDfromURL(w, r, urlID)
+	if gid < 0 {
 		return
 	}
 
 	// read group data from db
-	group, err := ctx.Store.GetGroupByID(id)
+	group, err := ctx.Store.GetGroupByID(gid)
 	if !dbErrorHandle(w, "Get group", err) {
 		return
 	}
@@ -90,6 +107,7 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 			return
 		}
 
+		log.Printf("Get response: %s\n", string(response))
 		//TODO: also add all meetings, members associated
 
 		// write into response
@@ -151,7 +169,7 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 			return
 		}
 
-		err := ctx.Store.DeleteGroup(id)
+		err := ctx.Store.DeleteGroup(gid)
 		if !dbErrorHandle(w, "Delete group", err) {
 			return
 		}
@@ -179,14 +197,15 @@ func (ctx *Context) GroupsMeetingHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	// parse group id
-	id := getGroupIDfromURL(w, r)
-	if id < 0 {
+	urlID := path.Base(path.Dir(r.URL.Path))
+	gid := getIDfromURL(w, r, urlID)
+	if gid < 0 {
 		return
 	}
 
 	// GET method returns all the meetings
 	if r.Method == "GET" {
-		meetings, err := ctx.Store.GetAllMeetingsOfGroup(id)
+		meetings, err := ctx.Store.GetAllMeetingsOfGroup(gid)
 		if !dbErrorHandle(w, "Get all meetings", err) {
 			return
 		}
@@ -220,15 +239,20 @@ func (ctx *Context) GroupsMeetingHandler(w http.ResponseWriter, r *http.Request)
 		if !unmarshalBody(w, body, meeting) {
 			return
 		}
+		meeting.CreatorID = uid
 
 		// Add into database
-		id, err := ctx.Store.InsertMeeting(meeting)
+		mid, err := ctx.Store.InsertMeeting(meeting)
 		if !dbErrorHandle(w, "Insert meeting", err) {
 			return
 		}
 
 		// TBD: should we return the whole object
-		meeting.MeetingID = id
+		meeting, err = ctx.Store.GetMeetingByID(mid)
+		if !dbErrorHandle(w, "get meeting", err) {
+			return
+		}
+
 		res := marshalRep(w, meeting)
 		if res == nil {
 			return
@@ -253,14 +277,22 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
+	// parse group id
+	urlID := path.Base(path.Dir(path.Dir(r.URL.Path)))
+	gid := getIDfromURL(w, r, urlID)
+	if gid < 0 {
+		return
+	}
+
 	// parse meeting id
-	id := getIDfromURL(w, r)
-	if id < 0 {
+	urlID = path.Base(r.URL.Path)
+	mid := getIDfromURL(w, r, urlID)
+	if mid < 0 {
 		return
 	}
 
 	if r.Method == "GET" {
-		meetings, err := ctx.Store.GetMeetingByID(id)
+		meetings, err := ctx.Store.GetMeetingByID(mid)
 		if !dbErrorHandle(w, "Get meetings", err) {
 			return
 		}
@@ -291,14 +323,14 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 		}
 
 		//Update in db
-		err := ctx.Store.UpdateMeeting(id, meeting)
+		err := ctx.Store.UpdateMeeting(mid, meeting)
 		if !dbErrorHandle(w, "Update meeting", err) {
 			return
 		}
 
 		// TBD
-		meeting, err = ctx.Store.GetMeetingByID(id)
-		if dbErrorHandle(w, "get updated meeting", err) {
+		meeting, err = ctx.Store.GetMeetingByID(mid)
+		if !dbErrorHandle(w, "get updated meeting", err) {
 			return
 		}
 
@@ -312,28 +344,24 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 
 	if r.Method == "DELETE" {
 
-		// parse group id
-		gid := getGroupIDfromURL(w, r)
-		if gid < 0 {
-			return
-		}
-
 		// Check authorization
 		group, err := ctx.Store.GetGroupByID(gid)
 		if !dbErrorHandle(w, "get group", err) || !isGroupCreator(group, uid, w) {
 			return
 		}
 
-		meeting, err := ctx.Store.GetMeetingByID(id)
+		meeting, err := ctx.Store.GetMeetingByID(mid)
 		if !dbErrorHandle(w, "get meeting", err) || !isMeetingCreator(meeting, uid, w) {
 			return
 		}
 
 		// delete in database
-		err = ctx.Store.DeleteMeeting(id)
+		err = ctx.Store.DeleteMeeting(mid)
 		if !dbErrorHandle(w, "delete meeting", err) {
 			return
 		}
+
+		// TODO: delete associated meeting?
 
 		//response
 		respondWithHeader(w, typeText, []byte("Successfully deleted"), http.StatusOK)

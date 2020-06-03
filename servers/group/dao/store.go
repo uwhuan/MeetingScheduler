@@ -62,6 +62,9 @@ type GroupStore interface {
 
 	//GetAllMembers gets all users in the current group
 	GetAllMembers(id int64) ([]*model.User, error)
+
+	//GetAllGroups gets all groups in db
+	GetAllGroups() ([]*model.Group, error)
 }
 
 //ScheduleStore represents a store for Schedules

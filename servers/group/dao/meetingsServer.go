@@ -8,15 +8,15 @@ import (
 )
 
 var queryGetMeeting = "SELECT meetingID, name, description, creatorID, startTime, endTime, createDate, confirmed, groupID FROM meetings where meetingID = ?"
-var queryGetAllByGroup = "SELECT name, creatorID, startTime, endTime, createDate, confirmed, meetingID, groupID FROM meetings where groupID = ?"
+var queryGetAllByGroup = "SELECT name, description, creatorID, startTime, endTime, createDate, confirmed, meetingID, groupID FROM meetings where groupID = ?"
 var queryInsertMeeting = "INSERT INTO meetings(name, description, creatorID, startTime, endTime, createDate, confirmed, groupID) VALUES (?,?,?,?,?,?,?,?)"
-var queryUpdateMeeting = "UPDATE meetings SET name = ?, description = ? WHERE id = ?"
-var queryDeleteMeeting = "DELETE FROM meetings WHERE id = ?"
-var queryConfirmMeeting = "UPDATE meetings SET confirmed = 1, startTime = ?, endTime = ? WHERE id = ?"
+var queryUpdateMeeting = "UPDATE meetings SET name = ?, description = ? WHERE meetingID = ?"
+var queryDeleteMeeting = "DELETE FROM meetings WHERE meetingID = ?"
+var queryConfirmMeeting = "UPDATE meetings SET confirmed = 1, startTime = ?, endTime = ? WHERE meetingID = ?"
 
 var queryGetAllParticipants = "SELECT uid, email, userName, firstName, lastName FROM user INNER JOIN meetingparticipant M ON M.uid =user.uid WHERE M.meetingID = ?"
 
-var defaultTime = "Jan 1, 2000 at 0:00pm (PST)"
+var defaultTime = "Mon Jan 2 15:04:05 -0700 MST 2006"
 var defaultConfrim = 0
 
 // var defaultErrorMsg = "handle meetings"
@@ -64,7 +64,7 @@ func (store *Store) InsertMeeting(meeting *model.Meeting) (int64, error) {
 
 	// Execute the query
 	res, err := store.Db.Exec(queryInsertMeeting, meeting.Name, meeting.Description, meeting.CreatorID,
-		parseTime(defaultTime), parseTime(defaultTime), time.Now, defaultConfrim, meeting.GroupID)
+		defaultTime, defaultTime, time.Now().Format(time.UnixDate), defaultConfrim, meeting.GroupID)
 	if err != nil {
 		return 0, err
 	}
@@ -107,12 +107,12 @@ func (store *Store) GetAllParticipants(meetingID int64) ([]*model.User, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var u *model.User
-		err = rows.Scan(u.ID, u.Email, u.UserName, u.FirstName, u.LastName)
+		var u model.User
+		err = rows.Scan(&u.ID, &u.Email, &u.UserName, &u.FirstName, &u.LastName)
 		if err != nil {
 			return users, err
 		}
-		users = append(users, u)
+		users = append(users, &u)
 	}
 
 	// get any error encountered during iteration
