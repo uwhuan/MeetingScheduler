@@ -12,3 +12,11 @@ type Meeting struct {
 	CreateDate  string `json:"createDate"`
 	Confirmed   int    `json:"confirmed"` // defalt false
 }
+
+// MeetingReturnBody associated the meeting with schedules and users
+// It is used to return a detailed meeting information to the clients
+type MeetingReturnBody struct {
+	MeetingInfo  *Meeting
+	Schedules    []*Schedule
+	Participants []*User
+}

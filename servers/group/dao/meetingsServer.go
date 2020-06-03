@@ -14,7 +14,7 @@ var queryUpdateMeeting = "UPDATE meetings SET name = ?, description = ? WHERE me
 var queryDeleteMeeting = "DELETE FROM meetings WHERE meetingID = ?"
 var queryConfirmMeeting = "UPDATE meetings SET confirmed = 1, startTime = ?, endTime = ? WHERE meetingID = ?"
 
-var queryGetAllParticipants = "SELECT uid, email, userName, firstName, lastName FROM user INNER JOIN meetingparticipant M ON M.uid =user.uid WHERE M.meetingID = ?"
+var queryGetAllParticipants = "SELECT user.uid, email, userName, firstName, lastName FROM user INNER JOIN meetingparticipant M ON M.uid =user.uid WHERE M.meetingID = ?"
 
 var defaultTime = "Mon Jan 2 15:04:05 -0700 MST 2006"
 var defaultConfrim = 0

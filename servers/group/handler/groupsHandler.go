@@ -3,7 +3,6 @@ package handler
 import (
 	"MeetingScheduler/servers/group/model"
 	"fmt"
-	"log"
 	"net/http"
 	"path"
 )
@@ -19,7 +18,6 @@ func (ctx *Context) GroupsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//TODO: add GET method
 	if r.Method != "POST" && r.Method != "GET" {
 		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
 		return
@@ -101,14 +99,30 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 	// GET request will return the group
 	if r.Method == "GET" {
 
-		// marshal current group into response body
-		response := marshalRep(w, group)
-		if response == nil {
+		//Get all meetings
+		meetings, err := ctx.Store.GetAllMeetingsOfGroup(gid)
+		if !dbErrorHandle(w, "Get all meetings", err) {
 			return
 		}
 
-		log.Printf("Get response: %s\n", string(response))
-		//TODO: also add all meetings, members associated
+		//Get all members of the group
+		members, err := ctx.Store.GetAllMembers(gid)
+		if !dbErrorHandle(w, "Get all members", err) {
+			return
+		}
+
+		//Construct the return struct
+		completeGroupInfo := model.GroupReturnBody{
+			Meetings:  meetings,
+			GroupInfo: group,
+			Members:   members,
+		}
+
+		// marshal current group into response body
+		response := marshalRep(w, completeGroupInfo)
+		if response == nil {
+			return
+		}
 
 		// write into response
 		respondWithHeader(w, typeJSON, response, http.StatusOK)
@@ -292,18 +306,35 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 	}
 
 	if r.Method == "GET" {
-		meetings, err := ctx.Store.GetMeetingByID(mid)
-		if !dbErrorHandle(w, "Get meetings", err) {
+		meeting, err := ctx.Store.GetMeetingByID(mid)
+		if !dbErrorHandle(w, "Get meeting", err) {
 			return
+		}
+
+		//get the members of this meeting
+		members, err := ctx.Store.GetAllParticipants(mid)
+		if !dbErrorHandle(w, "Get all members", err) {
+			return
+		}
+
+		// get the schedule of the meeting
+		schedules, err := ctx.Store.GetAllSchedule(mid)
+		if !dbErrorHandle(w, "Get all schedules", err) {
+			return
+		}
+
+		// construct response body
+		completeMeetingInfo := model.MeetingReturnBody{
+			MeetingInfo:  meeting,
+			Participants: members,
+			Schedules:    schedules,
 		}
 
 		// encode into JSON
-		res := marshalRep(w, meetings)
+		res := marshalRep(w, completeMeetingInfo)
 		if res == nil {
 			return
 		}
-
-		//TODO: also add all members associated
 
 		// response
 		respondWithHeader(w, typeJSON, res, http.StatusOK)

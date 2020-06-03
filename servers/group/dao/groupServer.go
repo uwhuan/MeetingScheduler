@@ -11,7 +11,7 @@ var queryUpdateGroup = "UPDATE userGroups SET name = ?, description = ? WHERE gr
 var queryDeleteGroup = "DELETE FROM userGroups WHERE groupID = ?"
 var queryGetAllGroups = "SELECT groupID, name, description, creatorID, createDate FROM userGroups"
 
-var queryGetAllMembers = "SELECT uid, email, userName, firstName, lastName FROM user INNER JOIN membership M ON user.uid = M.uid WHERE M.groupID = ?"
+var queryGetAllMembers = "SELECT user.uid, email, userName, firstName, lastName FROM user INNER JOIN membership M ON user.uid = M.uid WHERE M.groupID = ?"
 
 //GetGroupByID returns the Group with the given ID
 func (store *Store) GetGroupByID(id int64) (*model.Group, error) {
