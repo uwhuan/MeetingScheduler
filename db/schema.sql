@@ -12,16 +12,15 @@ create table if not exists user (
     UNIQUE KEY unique_username (UserName)
 );
 
-create table if not exists usermeeting (
+create table if not exists meetings (
     MeetingID int not null auto_increment primary key,
     Name varchar(255) not null,
     CreatorID int not null,
     GroupID int not null,
     Description varchar(320),
-    StartTime datetime not null, 
-    EndTime datetime not null,  
-    Confirmed int not null,  
-    CreateDate datetime not null 
+    StartTime varchar(320) not null, 
+    EndTime varchar(320) not null,   
+    CreateDate varchar(320) not null 
 )
 
 create table if not exists meetingparticipant (
