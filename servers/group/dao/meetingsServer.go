@@ -63,10 +63,10 @@ func (store *Store) GetAllMeetingsOfGroup(id int64) ([]*model.Meeting, error) {
 //InsertMeeting inserts the meeting into the database, and returns
 //the newly-inserted meetingID, complete with the DBMS-assigned ID
 func (store *Store) InsertMeeting(meeting *model.Meeting) (int64, error) {
-
+	loc, _ := time.LoadLocation("EST")
 	// Execute the query
 	res, err := store.Db.Exec(queryInsertMeeting, meeting.Name, meeting.Description, meeting.CreatorID,
-		defaultTime, defaultTime, time.Now().Format(time.UnixDate), defaultConfrim, meeting.GroupID)
+		defaultTime, defaultTime, time.Now().In(loc).Format(time.UnixDate), defaultConfrim, meeting.GroupID)
 	if err != nil {
 		return 0, err
 	}

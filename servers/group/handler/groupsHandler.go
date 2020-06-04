@@ -9,6 +9,7 @@ import (
 
 var errUnsuportMethod = "Unsupported Methods"
 var typeText = "text/plain"
+var version = "/v1"
 
 // GroupsHandler handles request for creating a group
 func (ctx *Context) GroupsHandler(w http.ResponseWriter, r *http.Request) {
@@ -79,7 +80,7 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 	}
 
 	// Only support GET PATCH DELETE method
-	if r.Method != "GET" && r.Method != "PATCH" && r.Method != "DELETE" {
+	if r.Method != "GET" && r.Method != "PATCH" && r.Method != "DELETE" && r.Method != "PUT" {
 		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
 		return
 	}
@@ -129,8 +130,8 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 		respondWithHeader(w, typeJSON, response, http.StatusOK)
 	}
 
-	// PATCH request can update the groups' information, only creator can use this method
-	if r.Method == "PATCH" {
+	// PUT request can update the groups' information, only creator can use this method
+	if r.Method == "PUT" {
 
 		// Check authorization
 		if !isGroupCreator(group, uid, w) {
@@ -173,6 +174,30 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 		}
 
 		respondWithHeader(w, typeJSON, res, http.StatusOK)
+
+	}
+
+	// PATCH generate an invitation link, and add the invitation email into group members
+	if r.Method == "PATCH" {
+		// TBD: authorization?
+
+		// Get the invitation information form request
+		body := getRequestBody(w, r)
+		if body == nil {
+			return
+		}
+
+		guest := &model.NewGuest{}
+		if !unmarshalBody(w, body, guest) {
+			return
+		}
+
+		// Generate an invitation link with the email
+		uri := model.CreateGroupInvitation(guest.DisplayName, guest.Email, gid)
+		link := r.Host + version + "/guest/" + uri
+
+		// response with the link
+		respondWithHeader(w, typeText, []byte(link), http.StatusCreated)
 
 	}
 
@@ -288,7 +313,7 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 		return
 	}
 
-	if r.Method != "GET" && r.Method != "PATCH" && r.Method != "DELETE" {
+	if r.Method != "GET" && r.Method != "PATCH" && r.Method != "DELETE" && r.Method != "PUT" {
 		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
 		return
 	}
@@ -342,7 +367,7 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 		respondWithHeader(w, typeJSON, res, http.StatusOK)
 	}
 
-	if r.Method == "PATCH" {
+	if r.Method == "PUT" {
 
 		//get object from body
 		body := getRequestBody(w, r)
@@ -373,6 +398,30 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 		}
 
 		respondWithHeader(w, typeJSON, res, http.StatusOK)
+	}
+
+	// PATCH generate an invitation link, and add the invitation email into group members
+	if r.Method == "PATCH" {
+		// TBD: authorization?
+
+		// Get the invitation information form request
+		body := getRequestBody(w, r)
+		if body == nil {
+			return
+		}
+
+		guest := &model.NewGuest{}
+		if !unmarshalBody(w, body, guest) {
+			return
+		}
+
+		// Generate an invitation link with the email
+		uri := model.CreateMeetingInvitation(guest.DisplayName, guest.Email, mid)
+		link := r.Host + version + "/guest/" + uri
+
+		// response with the link
+		respondWithHeader(w, typeText, []byte(link), http.StatusCreated)
+
 	}
 
 	if r.Method == "DELETE" {
@@ -429,14 +478,14 @@ func (ctx *Context) ScheduleHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Unmarshal body to group object
-		sch := model.Schedule{}
+		sch := &model.Schedule{}
 		if !unmarshalBody(w, body, sch) {
 			return
 		}
 		sch.MeetingID = mid
 
 		// Add to database
-		id, err := ctx.Store.CreateSchedule(&sch)
+		id, err := ctx.Store.CreateSchedule(sch)
 		if !dbErrorHandle(w, "Insert group", err) {
 			return
 		}

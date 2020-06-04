@@ -22,13 +22,13 @@ create table if not exists meetings (
     EndTime varchar(100),  
     Confirmed int,  
     CreateDate varchar(100) not null,
-    CONSTRAINT mg PRIMARY KEY (MeetingID,GroupID)
+    CONSTRAINT mg UNIQUE (MeetingID,GroupID)
 );
 
 create table if not exists meetingparticipant (
     MeetingID int not null,
     UID int not null,
-    CONSTRAINT mu PRIMARY KEY (MeetingID,UID)
+    CONSTRAINT mu UNIQUE (MeetingID,UID)
 );
 
 create table if not exists logentry (
@@ -56,7 +56,7 @@ create table if not exists userGroups (
 create table if not exists membership (
     uid int not null,
     GroupID int not null,
-    CONSTRAINT gu PRIMARY KEY (GroupID, uid)
+    CONSTRAINT gu UNIQUE (GroupID, uid)
 );
 
 create table if not exists guests (
@@ -66,5 +66,6 @@ create table if not exists guests (
     GroupID int not null,
     MeetingID int,
     InvitedBy int,
-    CONSTRAINT signleGuest PRIMARY KEY (GroupID, MeetingID, Email)
+    Confirmed int,
+    CONSTRAINT single UNIQUE (Email, GroupID)
 );
