@@ -4,12 +4,14 @@ import (
 	model "MeetingScheduler/servers/group/model"
 )
 
-var queryGetAllSchedule = "SELECT StartTime, EndTime, votes FROM schedule WHERE MeetingID = ? ORDER BY votes"
+var queryGetAllSchedule = "SELECT scheduleID, StartTime, EndTime, MeetingID, votes FROM schedule WHERE MeetingID = ? ORDER BY votes"
 var queryInsertSchedule = "INSERT INTO schedule(meetingID, StartTime, EndTime, votes) VALUES (?,?,?,?)"
 var queryGetSchedule = "SELECT scheduleID, StartTime, EndTime, MeetingID, votes FROM schedule WHERE scheduleID = ?"
 var queryDeleteSchedule = "DELETE FROM schedule WHERE scheduleID = ?"
 var queryIncreaseVote = "UPDATE schedule SET votes = votes+1 WHERE scheduleID = ?"
 var queryCheckVotes = "SELECT votes FROM schedule WHERE scheduleID = ?"
+
+var queryDeleteSchedulesOfMeeting = "DELETE FROM schedule WHERE MeetingID = ?"
 
 //GetAllSchedule returns all schedules unser a meeting
 func (store *Store) GetAllSchedule(meetingID int64) ([]*model.Schedule, error) {
@@ -24,12 +26,12 @@ func (store *Store) GetAllSchedule(meetingID int64) ([]*model.Schedule, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var sch *model.Schedule
-		err = rows.Scan(sch.StartTime, sch.EndTime, sch.MeetingID)
+		var sch model.Schedule
+		err = rows.Scan(&sch.ScheduleID, &sch.StartTime, &sch.EndTime, &sch.MeetingID, &sch.Votes)
 		if err != nil {
 			return schedules, err
 		}
-		schedules = append(schedules, sch)
+		schedules = append(schedules, &sch)
 	}
 
 	// get any error encountered during iteration
@@ -60,12 +62,18 @@ func (store *Store) Vote(id int64) (int, error) {
 		return 0, err
 	}
 	voteCount := 0
-	err = store.Db.QueryRow(queryCheckVotes, id).Scan(voteCount)
+	err = store.Db.QueryRow(queryCheckVotes, id).Scan(&voteCount)
 	return voteCount, err
 }
 
 //DeleteSchedule deletes the Schedule with the given ID
 func (store *Store) DeleteSchedule(id int64) error {
 	_, err := store.Db.Exec(queryDeleteSchedule, id)
+	return err
+}
+
+//DeleteAllSchedule deletes all the Schedules with the given ID
+func (store *Store) DeleteAllSchedule(mid int64) error {
+	_, err := store.Db.Exec(queryDeleteSchedulesOfMeeting, mid)
 	return err
 }

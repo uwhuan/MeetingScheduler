@@ -8,15 +8,17 @@ import (
 )
 
 var queryGetMeeting = "SELECT meetingID, name, description, creatorID, startTime, endTime, createDate, confirmed, groupID FROM meetings where meetingID = ?"
-var queryGetAllByGroup = "SELECT name, creatorID, startTime, endTime, createDate, confirmed, meetingID, groupID FROM meetings where groupID = ?"
+var queryGetAllByGroup = "SELECT name, description, creatorID, startTime, endTime, createDate, confirmed, meetingID, groupID FROM meetings where groupID = ?"
 var queryInsertMeeting = "INSERT INTO meetings(name, description, creatorID, startTime, endTime, createDate, confirmed, groupID) VALUES (?,?,?,?,?,?,?,?)"
-var queryUpdateMeeting = "UPDATE meetings SET name = ?, description = ? WHERE id = ?"
-var queryDeleteMeeting = "DELETE FROM meetings WHERE id = ?"
-var queryConfirmMeeting = "UPDATE meetings SET confirmed = 1, startTime = ?, endTime = ? WHERE id = ?"
+var queryUpdateMeeting = "UPDATE meetings SET name = ?, description = ? WHERE meetingID = ?"
+var queryDeleteMeeting = "DELETE FROM meetings WHERE meetingID = ?"
+var queryConfirmMeeting = "UPDATE meetings SET confirmed = 1, startTime = ?, endTime = ? WHERE meetingID = ?"
 
-var queryGetAllParticipants = "SELECT uid, email, userName, firstName, lastName FROM user INNER JOIN meetingparticipant M ON M.uid =user.uid WHERE M.meetingID = ?"
+var queryGetAllParticipants = "SELECT user.uid, email, userName, firstName, lastName FROM user INNER JOIN meetingparticipant M ON M.uid =user.uid WHERE M.meetingID = ?"
+var queryInsertParticipant = "INSERT INTO meetingparticipant(MeetingID, uid) VALUES(?,?)"
+var queryDeleteParticipantsOfMeeting = "DELETE FROM meetingparticipant WHERE meetingID = ?"
 
-var defaultTime = "Jan 1, 2000 at 0:00pm (PST)"
+var defaultTime = "" // format： "Mon Jan 2 15:04:05 -0700 MST 2006"
 var defaultConfrim = 0
 
 // var defaultErrorMsg = "handle meetings"
@@ -61,17 +63,29 @@ func (store *Store) GetAllMeetingsOfGroup(id int64) ([]*model.Meeting, error) {
 //InsertMeeting inserts the meeting into the database, and returns
 //the newly-inserted meetingID, complete with the DBMS-assigned ID
 func (store *Store) InsertMeeting(meeting *model.Meeting) (int64, error) {
-
+	loc, err := time.LoadLocation("Local")
+	if err != nil {
+		return 0, err
+	}
 	// Execute the query
 	res, err := store.Db.Exec(queryInsertMeeting, meeting.Name, meeting.Description, meeting.CreatorID,
-		parseTime(defaultTime), parseTime(defaultTime), time.Now, defaultConfrim, meeting.GroupID)
+		defaultTime, defaultTime, time.Now().In(loc).Format(time.UnixDate), defaultConfrim, meeting.GroupID)
 	if err != nil {
 		return 0, err
 	}
 
 	// Get the auto-incremented id
 	id, err := res.LastInsertId()
-	return id, err
+	if err != nil {
+		return 0, err
+	}
+
+	_, err = store.Db.Exec(queryInsertParticipant, id, meeting.CreatorID)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 
 }
 
@@ -85,14 +99,32 @@ func (store *Store) UpdateMeeting(id int64, update *model.Meeting) error {
 //DeleteMeeting deletes the meeting with the given ID
 func (store *Store) DeleteMeeting(id int64) error {
 	_, err := store.Db.Exec(queryDeleteMeeting, id)
+	if err != nil {
+		return err
+	}
+	err = store.DeleteAllSchedule(id)
+	if err != nil {
+		return err
+	}
+	_, err = store.Db.Exec(queryDeleteParticipantsOfMeeting, id)
 	return err
 }
 
 // ConfirmMeeting set the confirmed start and end time of a meeting
 // and set the confirmed flag to be true
-func (store *Store) ConfirmMeeting(id int64, schedule *model.Schedule) error {
-	_, err := store.Db.Exec(queryConfirmMeeting, parseTime(schedule.StartTime), parseTime(schedule.EndTime), id)
-	return err
+func (store *Store) ConfirmMeeting(id int64, schedule *model.Schedule) (*model.Meeting, error) {
+	_, err := store.Db.Exec(queryConfirmMeeting, schedule.StartTime, schedule.EndTime, id)
+	if err != nil {
+		return nil, err
+	}
+	meeting, err := store.GetMeetingByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// delete all schedules
+	err = store.DeleteAllSchedule(id)
+	return meeting, err
 }
 
 //GetAllParticipants get all participants of a meeting
@@ -107,12 +139,12 @@ func (store *Store) GetAllParticipants(meetingID int64) ([]*model.User, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		var u *model.User
-		err = rows.Scan(u.ID, u.Email, u.UserName, u.FirstName, u.LastName)
+		var u model.User
+		err = rows.Scan(&u.ID, &u.Email, &u.UserName, &u.FirstName, &u.LastName)
 		if err != nil {
 			return users, err
 		}
-		users = append(users, u)
+		users = append(users, &u)
 	}
 
 	// get any error encountered during iteration
