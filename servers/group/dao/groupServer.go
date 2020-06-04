@@ -11,7 +11,9 @@ var queryUpdateGroup = "UPDATE userGroups SET name = ?, description = ? WHERE gr
 var queryDeleteGroup = "DELETE FROM userGroups WHERE groupID = ?"
 var queryGetAllGroups = "SELECT groupID, name, description, creatorID, createDate FROM userGroups"
 
-var queryGetAllMembers = "SELECT uid, email, userName, firstName, lastName FROM user INNER JOIN membership M ON user.uid = M.uid WHERE M.groupID = ?"
+var queryGetAllMembers = "SELECT user.uid, email, userName, firstName, lastName FROM user INNER JOIN membership M ON user.uid = M.uid WHERE M.groupID = ?"
+
+var queryInsertGU = "INSERT INTO membership(GroupID, uid) VALUES(?,?)"
 
 //GetGroupByID returns the Group with the given ID
 func (store *Store) GetGroupByID(id int64) (*model.Group, error) {
@@ -27,7 +29,18 @@ func (store *Store) InsertGroup(group *model.Group) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return res.LastInsertId()
+
+	id, err := res.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+
+	_, err = store.Db.Exec(queryInsertGU, id, group.CreatorID)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
 //UpdateGroup applies updates to the given Group  ID

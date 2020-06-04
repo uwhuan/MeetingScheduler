@@ -14,9 +14,11 @@ var queryUpdateMeeting = "UPDATE meetings SET name = ?, description = ? WHERE me
 var queryDeleteMeeting = "DELETE FROM meetings WHERE meetingID = ?"
 var queryConfirmMeeting = "UPDATE meetings SET confirmed = 1, startTime = ?, endTime = ? WHERE meetingID = ?"
 
-var queryGetAllParticipants = "SELECT uid, email, userName, firstName, lastName FROM user INNER JOIN meetingparticipant M ON M.uid =user.uid WHERE M.meetingID = ?"
+var queryGetAllParticipants = "SELECT user.uid, email, userName, firstName, lastName FROM user INNER JOIN meetingparticipant M ON M.uid =user.uid WHERE M.meetingID = ?"
 
-var defaultTime = "Mon Jan 2 15:04:05 -0700 MST 2006"
+var queryInsertParticipant = "INSERT INTO meetingparticipant(MeetingID, uid) VALUES(?,?)"
+
+var defaultTime = "" // format： "Mon Jan 2 15:04:05 -0700 MST 2006"
 var defaultConfrim = 0
 
 // var defaultErrorMsg = "handle meetings"
@@ -71,7 +73,16 @@ func (store *Store) InsertMeeting(meeting *model.Meeting) (int64, error) {
 
 	// Get the auto-incremented id
 	id, err := res.LastInsertId()
-	return id, err
+	if err != nil {
+		return 0, err
+	}
+
+	_, err = store.Db.Exec(queryInsertParticipant, id, meeting.CreatorID)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 
 }
 
@@ -90,9 +101,13 @@ func (store *Store) DeleteMeeting(id int64) error {
 
 // ConfirmMeeting set the confirmed start and end time of a meeting
 // and set the confirmed flag to be true
-func (store *Store) ConfirmMeeting(id int64, schedule *model.Schedule) error {
-	_, err := store.Db.Exec(queryConfirmMeeting, parseTime(schedule.StartTime), parseTime(schedule.EndTime), id)
-	return err
+func (store *Store) ConfirmMeeting(id int64, schedule *model.Schedule) (*model.Meeting, error) {
+	_, err := store.Db.Exec(queryConfirmMeeting, schedule.StartTime, schedule.EndTime, id)
+	if err != nil {
+		return nil, err
+	}
+	meeting, err := store.GetMeetingByID(id)
+	return meeting, err
 }
 
 //GetAllParticipants get all participants of a meeting

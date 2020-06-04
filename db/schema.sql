@@ -21,7 +21,8 @@ create table if not exists meetings (
     StartTime varchar(100), 
     EndTime varchar(100),  
     Confirmed int,  
-    CreateDate varchar(100) not null 
+    CreateDate varchar(100) not null,
+    CONSTRAINT mg PRIMARY KEY (MeetingID,GroupID)
 );
 
 create table if not exists meetingparticipant (
