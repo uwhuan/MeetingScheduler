@@ -27,7 +27,7 @@ create table if not exists meetings (
 
 create table if not exists meetingparticipant (
     MeetingID int not null,
-    UID int UNIQUE not null,
+    UID int not null,
     CONSTRAINT mu PRIMARY KEY (MeetingID,UID)
 );
 
@@ -57,4 +57,14 @@ create table if not exists membership (
     uid int not null,
     GroupID int not null,
     CONSTRAINT gu PRIMARY KEY (GroupID, uid)
+);
+
+create table if not exists guests (
+    GuestID int not null primary key,
+    Email varchar(100) not null,
+    DisplayName varchar(100), 
+    GroupID int not null,
+    MeetingID int,
+    InvitedBy int,
+    CONSTRAINT signleGuest PRIMARY KEY (GroupID, MeetingID, Email)
 );
