@@ -4,7 +4,7 @@ import (
 	model "MeetingScheduler/servers/group/model"
 )
 
-var queryGetAllSchedule = "SELECT StartTime, EndTime, votes FROM schedule WHERE MeetingID = ? ORDER BY votes"
+var queryGetAllSchedule = "SELECT scheduleID, StartTime, EndTime, MeetingID, votes FROM schedule WHERE MeetingID = ? ORDER BY votes"
 var queryInsertSchedule = "INSERT INTO schedule(meetingID, StartTime, EndTime, votes) VALUES (?,?,?,?)"
 var queryGetSchedule = "SELECT scheduleID, StartTime, EndTime, MeetingID, votes FROM schedule WHERE scheduleID = ?"
 var queryDeleteSchedule = "DELETE FROM schedule WHERE scheduleID = ?"
@@ -25,7 +25,7 @@ func (store *Store) GetAllSchedule(meetingID int64) ([]*model.Schedule, error) {
 
 	for rows.Next() {
 		var sch model.Schedule
-		err = rows.Scan(&sch.StartTime, &sch.EndTime, &sch.MeetingID)
+		err = rows.Scan(&sch.ScheduleID, &sch.StartTime, &sch.EndTime, &sch.MeetingID, &sch.Votes)
 		if err != nil {
 			return schedules, err
 		}

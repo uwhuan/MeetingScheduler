@@ -35,6 +35,7 @@ func main() {
 	route.HandleFunc("/v1/groups/{group_id}/meetings", ctx.GroupsMeetingHandler)
 	route.HandleFunc("/v1/groups/{group_id}/meetings/{meeting_id}", ctx.SpecificGroupsMeetingHandler)
 	route.HandleFunc("/v1/groups/{group_id}/meetings/{meeting_id}/schedule", ctx.ScheduleHandler)
+	route.HandleFunc("/v1/groups/{group_id}/meetings/{meeting_id}/schedule/{schedule_id}", ctx.SpecificScheduleHandler)
 
 	// start server
 	log.Printf("Server is listening at %s...", ADDR)

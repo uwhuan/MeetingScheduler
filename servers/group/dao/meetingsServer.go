@@ -18,7 +18,7 @@ var queryGetAllParticipants = "SELECT user.uid, email, userName, firstName, last
 
 var queryInsertParticipant = "INSERT INTO meetingparticipant(MeetingID, uid) VALUES(?,?)"
 
-var defaultTime = "Mon Jan 2 15:04:05 -0700 MST 2006"
+var defaultTime = "" // format： "Mon Jan 2 15:04:05 -0700 MST 2006"
 var defaultConfrim = 0
 
 // var defaultErrorMsg = "handle meetings"
@@ -101,9 +101,13 @@ func (store *Store) DeleteMeeting(id int64) error {
 
 // ConfirmMeeting set the confirmed start and end time of a meeting
 // and set the confirmed flag to be true
-func (store *Store) ConfirmMeeting(id int64, schedule *model.Schedule) error {
-	_, err := store.Db.Exec(queryConfirmMeeting, parseTime(schedule.StartTime), parseTime(schedule.EndTime), id)
-	return err
+func (store *Store) ConfirmMeeting(id int64, schedule *model.Schedule) (*model.Meeting, error) {
+	_, err := store.Db.Exec(queryConfirmMeeting, schedule.StartTime, schedule.EndTime, id)
+	if err != nil {
+		return nil, err
+	}
+	meeting, err := store.GetMeetingByID(id)
+	return meeting, err
 }
 
 //GetAllParticipants get all participants of a meeting

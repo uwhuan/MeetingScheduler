@@ -400,11 +400,119 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 	}
 }
 
+// ScheduleHandler add, get and delte schedules
 func (ctx *Context) ScheduleHandler(w http.ResponseWriter, r *http.Request) {
 	// Only support GET POST method
-	if r.Method != "GET" && r.Method != "POST" {
+	if r.Method != "GET" && r.Method != "POST" && r.Method != "DELETE" {
 		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
 		return
+	}
+
+	// parse meeting id
+	urlID := path.Base(path.Dir(r.URL.Path))
+	mid := getIDfromURL(w, r, urlID)
+	if mid < 0 {
+		return
+	}
+
+	if r.Method == "POST" {
+		// Only support JSON body
+		if !isContentTypeJSON(w, r) {
+			return
+		}
+
+		// Read response body
+		body := getRequestBody(w, r)
+		if body == nil {
+			return
+		}
+
+		// Unmarshal body to group object
+		sch := model.Schedule{}
+		if !unmarshalBody(w, body, sch) {
+			return
+		}
+		sch.MeetingID = mid
+
+		// Add to database
+		id, err := ctx.Store.CreateSchedule(&sch)
+		if !dbErrorHandle(w, "Insert group", err) {
+			return
+		}
+
+		schedule, err := ctx.Store.GetScheduleByID(id)
+		if !dbErrorHandle(w, "Get schedule", err) {
+			return
+		}
+
+		// marshal into bytes
+		response := marshalRep(w, schedule)
+		if response == nil {
+			return
+		}
+
+		// Response
+		respondWithHeader(w, typeJSON, response, http.StatusCreated)
+	}
+
+	if r.Method == "GET" {
+		schedules, err := ctx.Store.GetAllSchedule(mid)
+		if !dbErrorHandle(w, "Get schedule", err) {
+			return
+		}
+
+		response := marshalRep(w, schedules)
+		respondWithHeader(w, typeJSON, response, http.StatusOK)
+	}
+
+}
+
+func (ctx *Context) SpecificScheduleHandler(w http.ResponseWriter, r *http.Request) {
+	// Only support DELETE, PATCH method
+	if r.Method != "DELETE" && r.Method != "PATCH" {
+		http.Error(w, errUnsuportMethod, http.StatusMethodNotAllowed)
+		return
+	}
+
+	// parse schedule id
+	urlID := path.Base(r.URL.Path)
+	sid := getIDfromURL(w, r, urlID)
+	if sid < 0 {
+		return
+	}
+
+	if r.Method == "DELETE" {
+		err := ctx.Store.DeleteSchedule(sid)
+		if !dbErrorHandle(w, "Delete schedule", err) {
+			return
+		}
+
+		respondWithHeader(w, typeText, []byte("Successfully deleted the schedule"), http.StatusOK)
+	}
+
+	// This method is used to confirm a meeting
+	if r.Method == "PATCH" {
+		// parse meeting id
+		urlID = path.Base(path.Dir(path.Dir(r.URL.Path)))
+		mid := getIDfromURL(w, r, urlID)
+		if mid < 0 {
+			return
+		}
+
+		//get schedule
+		schedule, err := ctx.Store.GetScheduleByID(sid)
+		if !dbErrorHandle(w, "Get schedule", err) {
+			return
+		}
+
+		// Confim current meeting with current schedule
+		meeting, err := ctx.Store.ConfirmMeeting(mid, schedule)
+
+		// marshal response
+		response := marshalRep(w, meeting)
+
+		respondWithHeader(w, typeJSON, response, http.StatusOK)
+
 	}
 
 }
