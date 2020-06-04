@@ -15,8 +15,8 @@ var queryDeleteMeeting = "DELETE FROM meetings WHERE meetingID = ?"
 var queryConfirmMeeting = "UPDATE meetings SET confirmed = 1, startTime = ?, endTime = ? WHERE meetingID = ?"
 
 var queryGetAllParticipants = "SELECT user.uid, email, userName, firstName, lastName FROM user INNER JOIN meetingparticipant M ON M.uid =user.uid WHERE M.meetingID = ?"
-
 var queryInsertParticipant = "INSERT INTO meetingparticipant(MeetingID, uid) VALUES(?,?)"
+var queryDeleteParticipantsOfMeeting = "DELETE FROM meetingparticipant WHERE meetingID = ?"
 
 var defaultTime = "" // format： "Mon Jan 2 15:04:05 -0700 MST 2006"
 var defaultConfrim = 0
@@ -96,6 +96,14 @@ func (store *Store) UpdateMeeting(id int64, update *model.Meeting) error {
 //DeleteMeeting deletes the meeting with the given ID
 func (store *Store) DeleteMeeting(id int64) error {
 	_, err := store.Db.Exec(queryDeleteMeeting, id)
+	if err != nil {
+		return err
+	}
+	err = store.DeleteAllSchedule(id)
+	if err != nil {
+		return err
+	}
+	_, err = store.Db.Exec(queryDeleteParticipantsOfMeeting, id)
 	return err
 }
 
@@ -107,6 +115,12 @@ func (store *Store) ConfirmMeeting(id int64, schedule *model.Schedule) (*model.M
 		return nil, err
 	}
 	meeting, err := store.GetMeetingByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	// delete all schedules
+	err = store.DeleteAllSchedule(id)
 	return meeting, err
 }
 

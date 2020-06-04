@@ -14,6 +14,8 @@ var queryGetAllGroups = "SELECT groupID, name, description, creatorID, createDat
 var queryGetAllMembers = "SELECT user.uid, email, userName, firstName, lastName FROM user INNER JOIN membership M ON user.uid = M.uid WHERE M.groupID = ?"
 
 var queryInsertGU = "INSERT INTO membership(GroupID, uid) VALUES(?,?)"
+var queryDeleteMeetingsOfGroup = "DELETE FROM meetings WHERE groupID = ?"
+var queryDeleteParticipantsOfGroup = "DELETE FROM membership WHERE groupID = ?"
 
 //GetGroupByID returns the Group with the given ID
 func (store *Store) GetGroupByID(id int64) (*model.Group, error) {
@@ -50,9 +52,18 @@ func (store *Store) UpdateGroup(update *model.Group) error {
 	return err
 }
 
-//DeleteGroup deletes the Group with the given ID
+//DeleteGroup deletes the Group and associted meetings with the given ID
 func (store *Store) DeleteGroup(id int64) error {
 	_, err := store.Db.Exec(queryDeleteGroup, id)
+	if err != nil {
+		return err
+	}
+
+	//delete all meetings of the group
+	_, err = store.Db.Exec(queryDeleteMeetingsOfGroup, id)
+
+	//delete all members of the group
+	_, err = store.Db.Exec(queryDeleteParticipantsOfGroup, id)
 	return err
 }
 

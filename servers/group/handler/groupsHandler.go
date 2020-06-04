@@ -40,6 +40,7 @@ func (ctx *Context) GroupsHandler(w http.ResponseWriter, r *http.Request) {
 		if !unmarshalBody(w, body, postedGroup) {
 			return
 		}
+		postedGroup.CreatorID = uid
 
 		// Add to database
 		id, err := ctx.Store.InsertGroup(postedGroup)
