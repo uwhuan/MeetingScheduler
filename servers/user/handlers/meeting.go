@@ -146,9 +146,19 @@ func (ctx *HandlerCtx) GetMeetingByIDHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	// TODO: SHOULD RETURN MEETING DETAILS BY COMBINING THE above MEETING with the new Participants query!
+	participantIds, err := ctx.UserStore.GetMeetingParticipants(meetingIdInt)
+	if err != nil {
+		http.Error(w, "Error getting the participants from database", http.StatusInternalServerError)
+		return
+	}
+
+	meetingDetails := model.MeetingDetails{
+		Meeting:      *meeting,
+		Participants: participantIds,
+	}
 
 	// Respond to client
-	response, err := json.Marshal(meeting)
+	response, err := json.Marshal(meetingDetails)
 	if err != nil {
 		http.Error(w, "Error marshalling meeting", http.StatusInternalServerError)
 		return

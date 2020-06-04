@@ -58,20 +58,17 @@ Details: https://app.lucidchart.com/invitations/accept/3428ba22-3cdc-4bc7-9db3-3
 | P0       | As a user                  | I want to see the group details using the url                | The client will parse the URL to extract an ID, then send a GET request to /v1/groups/{id}, which will cause the groups microservice to retrieve the current state of the group and open a websocket with the client to enable the group. |
 | P0       | As a user                  | I want to see a list of meetings created by the group        | Upon receiving a GET request to /v1/groups/{groupsid}/meetings, the groups microservice shows a list of meetings under the current user. |
 | P0       | As a user                  | I want to see the details of a meeting by the meeting ID     | Upon receiving a GET request to /v1/groups/{groupsid}/meetings/{meetingid}, the groups microservice shows the meeting under the specific id. |
-| P0       | As a user                  | I want to create an account                                  | Upon receiving a POST request to /v1/users, the gateway creates a new user account and stores it in the database. |
+| P0       | As a user                  | I want to create an account                                  | Upon receiving a POST request to /v1/users/create, the gateway creates a new user account and stores it in the database. |
 | P1       | As a registered user       | I want to log into my account                                | Upon receiving a POST request to /v1/sessions, the gateway verifies the user credentials and shows the user profile. |
 | P1       | As a registered user       | I want to log out my account                                 | Upon receiving a DELETE request to /v1/sessions, the gateway verifies the user credentials and signs out the user. |
 | P1       | As a user                  | I want to add my time availability to a meeting group        | Upon receiving PATCH request to /v1/groups/{groupsid}, the calendar microservices will check the DB and update the availability. |
-| P1       | As a user                  | I want to know the earliest available time for group members before creating a meeting | Upon receiving a GET request to /v1/groups/{groupsid}, the calendar microservices will check users availability in the DB and return the earliest time for the meeting |
-| P1       | As a user                  | I want to download an ics file of a meeting                  | Upon receiving GET request to /v1/groups/{groupsid}/meetings/{meetingsid}/ics-generate, the groups microservices will return a ics file generated from the meeting data |
-| P1       | As a registered user       | I want to see a user&#39;s profile by given ID               | Upon receiving a GET request to /v1/users/{usersid}, the users microservice shows the user under the specific id. |
-| P1       | As a registered user       | I want to update my user profile                             | Upon receiving a PATCH request to /v1/users/{usersid}, the users microservice will check in the DB and update the profile. |
-| P1       | As a registered user       | I want to view all the meetings I have attended/will be attending/have created | Upon receiving a GET request to /v1/users/{usersid}/meetings?viewtype=all, the groups microservice shows a list of meetings under the current user. Viewtype could be &quot;all&quot;, &quot;past&quot; or &quot;future&quot;. Another parameter can specify to return only ones the user has created |
+| P1       | As a user                  | I want to join a meeting                                     | Upon receiving a PATCH request to /v1/groups/{groupsid}/meetings/{meetingsid}/{auto_generated_invitation}, group service will add the user to the meeting. If the user didn’t registered, it will create an anonymous user and add it to the meeting |
+| P1       | As a registered user       | I want to see a user&#39;s profile by given ID               | Upon receiving a GET request to /v1/users/profiles/{usersid}, the users microservice shows the user under the specific id. |
+| P1       | As a registered user       | I want to update my user profile                             | Upon receiving a PATCH request to /v1/users/profiles/{usersid}, the users microservice will check in the DB and update the profile. |
+| P1       | As a registered user       | I want to view all the meetings I have attended/will be attending/have created | Upon receiving a GET request to /v1/users/meetings?viewtype=all, the groups microservice shows a list of meetings under the current user. Viewtype could be “all”, “past” or “future”. Another parameter “time” can specify to return only ones the user has created |
+| P1       | As a registered user       | I want to see a meeting profile by given ID                  | Upon receiving a GET request to /v1/users/meetings/{meetingid}, the users microservice shows the meetings under the specific id. |
 | P1       | As a registered user       | I want to view all my meeting groups                         | Upon receiving a GET request to /v1/users/{usersid}/groups, the groups microservice shows a list of groups under the current user. |
-| P1       | As a registered user       | I want to delete a meeting under my account                  | Upon receiving a DELETE request to /v1/users/{usersid}/meetings/{meetingid}, the groups microservice deletes meetings under the current users. |
 | P1       | As a meeting group creator | I want to delete a meeting I have created                    | Upon receiving a DELETE request to /v1/groups/{groupsid}/meetings/{meetingid}, the groups microservice deletes meetings from the DB and closes all websockets connected to the meetings. |
-| P2       | As a registered user       | I want to set up my preference for meeting time              | Upon receiving a PATCH request to /v1/users/{usersid}, the users microservice will check in the DB and update the preference. The preference is part of the user profile, but belongs to more advanced features we will try to implement. |
-| P2       | As a meeting group creator | I want to know the suggested available time based off group members&#39; preference before creating a meeting | Upon receiving a GET request to /v1/groups/{groupsid}, the calendar microservices will check users preference in the DB and return the suggested time for the meeting. |
 
 # Endpoints
 
@@ -85,7 +82,7 @@ Details: https://app.lucidchart.com/invitations/accept/3428ba22-3cdc-4bc7-9db3-3
   * 415: Content-Type not JSON
   * 500: Internal server error.
 
-### /v1/users/{user_id}
+### /v1/users/profiles/{user_id}
 
 * GET:  Get the user with the given ID or current user with me
   * 200: Successfully Return of user.
@@ -98,7 +95,7 @@ Details: https://app.lucidchart.com/invitations/accept/3428ba22-3cdc-4bc7-9db3-3
   * 400: The id parameter is not a valid user ID.
   * 401: The user is not logged in.
   * 403: Not Authorized to get the user
-  * 415: Content Type Provided is not JSON
+  * 415: Content-Type Provided is not JSON
   * 500: Internal server error.
 
 ## Sessions        
@@ -114,41 +111,28 @@ Details: https://app.lucidchart.com/invitations/accept/3428ba22-3cdc-4bc7-9db3-3
 
 ### /v1/session/{sessionid}
 
-* DELETE : Ends the current user session. Should be the current session id or mine. 
+* DELETE : Ends the current user session
   * 200: Successfully ended session.
   * 403: The user is attempting to end another user's session.
   * 500: Internal server error
 
 ## Meetings user specific 
 
-### /v1/user/{userid}/meetings 
+### /v1/users/meetings 
 
 * GET : Gets a list of all the meetings created by the user
   * 200: Successfully retrieved meeting data
-  * 401: No valid user with the given ID
-  * 500: Internal server error
-* POST : Creates a new meeting 
-  * 201: Successfully created meeting
-  * 500: Internal server error
+  * 401: User not log-ined
+  * 400: Parameter of the path do not apply
+  * 500: Internal server error \- can not get records from the database
 
-### /v1/user/{userid}/meetings/{meetingid} 
+### /v1/users/meetings/{meetingid}
 
-* GET:  Get the current status of a specific meeting
-  * 200 Returns the current state of the meeting
-  * 401 Could not verify player, or they are not in the game
-  * 404 The meeting wasn’t found
-  * 415: Unsupported media type
+* GET:  Get the meeting details for a specific meeting
+  * 401: User not log-ined
+  * 200: Returns the current state of the meeting
+  * 404: The meeting wasn’t found
   * 500: Internal server error
- * PUT/PATCH: Edit the current meeting
-   * 200 ok: Returns the updated state of the meeting
-   * 400 no updated: No new information was provided
-   * 401 unauthorized: Could not verify user
- * DELETE : Delete the meeting or ends the meeting
-   * 200: Successfully ends the meeting session
-   * 401: Could not verify player the user
-   * 404: The meeting  wasn’t found
-   * 500: Internal Server Error 
-     Group
 
 ### /v1/groups
 

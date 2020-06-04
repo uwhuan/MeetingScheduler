@@ -40,4 +40,7 @@ type Store interface {
 
 	//GetAllUserMeetings returns all of the user's meetings
 	GetAllUserMeetings(id int64) ([]*Meeting, error)
+
+	//GetMeetingParticipants returns participants for meeting
+	GetMeetingParticipants(id int64) ([]int64, error)
 }
