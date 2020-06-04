@@ -11,6 +11,8 @@ var queryDeleteSchedule = "DELETE FROM schedule WHERE scheduleID = ?"
 var queryIncreaseVote = "UPDATE schedule SET votes = votes+1 WHERE scheduleID = ?"
 var queryCheckVotes = "SELECT votes FROM schedule WHERE scheduleID = ?"
 
+var queryDeleteSchedulesOfMeeting = "DELETE FROM schedule WHERE MeetingID = ?"
+
 //GetAllSchedule returns all schedules unser a meeting
 func (store *Store) GetAllSchedule(meetingID int64) ([]*model.Schedule, error) {
 
@@ -67,5 +69,11 @@ func (store *Store) Vote(id int64) (int, error) {
 //DeleteSchedule deletes the Schedule with the given ID
 func (store *Store) DeleteSchedule(id int64) error {
 	_, err := store.Db.Exec(queryDeleteSchedule, id)
+	return err
+}
+
+//DeleteAllSchedule deletes all the Schedules with the given ID
+func (store *Store) DeleteAllSchedule(mid int64) error {
+	_, err := store.Db.Exec(queryDeleteSchedulesOfMeeting, mid)
 	return err
 }
