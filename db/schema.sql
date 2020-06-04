@@ -18,18 +18,54 @@ create table if not exists meetings (
     CreatorID int not null,
     GroupID int not null,
     Description varchar(320),
-    StartTime varchar(320) not null, 
-    EndTime varchar(320) not null,   
-    CreateDate varchar(320) not null 
+    StartTime varchar(100) not null, 
+    EndTime varchar(100) not null,   
+    CreateDate varchar(100) not null,
+    Confirmed int
+    CONSTRAINT mg UNIQUE (MeetingID,GroupID)
 )
 
 create table if not exists meetingparticipant (
-    MeetingID int not null primary key,
-    UID int not null primary key
-)
+    MeetingID int not null,
+    UID int not null,
+    CONSTRAINT mu UNIQUE (MeetingID,UID)
+);
 
 create table if not exists logentry (
     UserID int not null auto_increment primary key,
     SignInTime datetime not null,
     IPAddress varchar(32) not null
-)
+);
+
+create table if not exists schedule (
+    ScheduleID int not null auto_increment primary key,
+    MeetingID int not null,
+    StartTime varchar(300) not null,
+    EndTime varchar(300) not null,
+    Votes int
+);
+
+create table if not exists userGroups (
+    GroupID int not null auto_increment primary key,
+    Description varchar(500),
+    Name varchar(100),
+    CreatorID int not null,
+    CreateDate varchar(300)
+);
+
+create table if not exists membership (
+    uid int not null,
+    GroupID int not null,
+    CONSTRAINT gu UNIQUE (GroupID, uid)
+);
+
+create table if not exists guests (
+    GuestID int not null primary key,
+    Email varchar(100) not null,
+    DisplayName varchar(100), 
+    GroupID int not null,
+    MeetingID int,
+    InvitedBy int,
+    Confirmed int,
+    CONSTRAINT single UNIQUE (Email, GroupID)
+);
