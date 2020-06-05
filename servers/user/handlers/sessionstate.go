@@ -1,9 +1,8 @@
 package handlers
 
 import (
+	"MeetingScheduler/servers/user/model"
 	"time"
-
-	"github.com/my/repo/ljchen17/final-project/MeetingScheduler/servers/user/model"
 )
 
 // SessionState represents a session for an authenticated user

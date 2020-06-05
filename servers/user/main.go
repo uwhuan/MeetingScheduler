@@ -1,6 +1,9 @@
 package main
 
 import (
+	"MeetingScheduler/servers/user/handlers"
+	"MeetingScheduler/servers/user/model"
+	"MeetingScheduler/servers/user/sessions"
 	"database/sql"
 	"log"
 	"net/http"
@@ -9,9 +12,6 @@ import (
 
 	"github.com/go-redis/redis"
 	"github.com/gorilla/mux"
-	"github.com/my/repo/ljchen17/final-project/MeetingScheduler/servers/user/handlers"
-	"github.com/my/repo/ljchen17/final-project/MeetingScheduler/servers/user/model"
-	"github.com/my/repo/ljchen17/final-project/MeetingScheduler/servers/user/sessions"
 )
 
 const headerCORS = "Access-Control-Allow-Origin"
@@ -39,11 +39,11 @@ func main() {
 
 	ADDR := os.Getenv("ADDR")
 	if len(ADDR) == 0 {
-		ADDR = ":443"
+		ADDR = ":5200"
 	}
 
-	tlsKey := reqEnv("TLSKEY")
-	tlsCert := reqEnv("TLSCERT")
+	//tlsKey := reqEnv("TLSKEY")
+	//tlsCert := reqEnv("TLSCERT")
 	sessionKey := reqEnv("SESSIONKEY")
 	redisAddr := reqEnv("REDISADDR")
 	dsn := reqEnv("DSN")
@@ -79,6 +79,6 @@ func main() {
 
 	// Start the server
 	log.Printf("Server is listening at %s...", ADDR)
-	log.Fatal(http.ListenAndServeTLS(ADDR, tlsCert, tlsKey, handlers.SetCors(r)))
+	log.Fatal(http.ListenAndServe(ADDR, handlers.SetCors(r)))
 
 }
