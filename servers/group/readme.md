@@ -67,7 +67,7 @@ The server manages group meeting management, group member management
           }
       }
       ```
-      
+    
   - Status code
     
   - PUT: Update the group's name and description
@@ -107,7 +107,7 @@ The server manages group meeting management, group member management
       id: random generated guestID
 
       ```
-      localhost:8100/v1/guest/g=1&name=guest1&email=ade@mail.com&id=6645600
+      localhost:8100/v1/guest/email=ade@mail.com&id=4377141/groups/{group_id}
       ```
 
   - DELETE: Delete the whole group and any meetings under the group. Only group creator can use this method
@@ -193,12 +193,8 @@ The server manages group meeting management, group member management
     - Success Return Example:
 
       ```
-      localhost:8100/v1/guest/m=1&name=guest1&email=ade@mail.com&id=4377141
+      localhost:8100/v1/guest/email=ade@mail.com&id=4377141/meetings/{meeting_id}
       ```
-
-      m: meetingid
-
-      id: random generated guestID
 
   - DELETE: will return `Successfully deleted` if success
 

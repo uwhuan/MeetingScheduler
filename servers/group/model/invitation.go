@@ -54,7 +54,7 @@ func CreateGuest(guest Guest, gid int64, mid int64, uid int64) *Guest {
 // CreateMeetingInvitation generates a random link for guest
 func CreateMeetingInvitation(guestName string, email string, mid int64) string {
 	randomID := int64(rand.Float64() * math.Pow(10, 7))
-	randomPath := fmt.Sprintf("m=%d&name=%s&email=%s&id=%d", mid, guestName, email, randomID)
+	randomPath := fmt.Sprintf("email=%s&id=%d/meetings/%d", email, randomID, mid)
 	log.Printf("Generate link: %s\n", randomPath)
 	return randomPath
 }
@@ -62,7 +62,7 @@ func CreateMeetingInvitation(guestName string, email string, mid int64) string {
 // CreateGroupInvitation generates a random link for guest
 func CreateGroupInvitation(guestName string, email string, gid int64) string {
 	randomID := int64(rand.Float64() * math.Pow(10, 7))
-	randomPath := fmt.Sprintf("g=%d&name=%s&email=%s&id=%d", gid, guestName, email, randomID)
+	randomPath := fmt.Sprintf("email=%s&id=%d/groups/%d", email, randomID, gid)
 	log.Printf("Generate link: %s\n", randomPath)
 	return randomPath
 }
