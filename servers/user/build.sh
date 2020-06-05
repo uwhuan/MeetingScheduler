@@ -1,3 +1,3 @@
 GOOS=linux go build
-docker build -t ljchen17/gateway .
+docker build -t ljchen17/usergateway .
 go clean
