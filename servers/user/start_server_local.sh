@@ -14,7 +14,7 @@ docker run -d -e MYSQL_ROOT_PASSWORD=Hdkme7294 --name ljchen17mysqldemo -p 3306:
 
 docker rm -f ljchen17gateway
 docker pull ljchen17/usergateway
-docker run -d --name ljchen17gateway -p 443:443 -v /etc/letsencrypt:/etc/letsencrypt:ro -e TLSCERT=/etc/letsencrypt/live/api.ljchen17.me/fullchain.pem -e TLSKEY=/etc/letsencrypt/live/api.ljchen17.me/privkey.pem -e SESSIONKEY=hfewi1 -e REDISADDR=ljchen17redis:6379 -e DSN="root:Hdkme7294@tcp(ljchen17mysqldemo:3306)/INFO441" ljchen17/usergateway
+docker run -d --name ljchen17gateway -p 5200:5200 -e SESSIONKEY=hfewi1 -e REDISADDR=ljchen17redis:6379 -e DSN="root:Hdkme7294@tcp(ljchen17mysqldemo:3306)/INFO441" ljchen17/usergateway
 
 docker network connect mainnetwork ljchen17gateway
 docker network connect mainnetwork ljchen17redis

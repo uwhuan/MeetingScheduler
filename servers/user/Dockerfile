@@ -4,8 +4,8 @@
 
 FROM alpine
 RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
-RUN update-ca-certificates
+#RUN update-ca-certificates
 
 COPY user user
-EXPOSE 443
+EXPOSE 5200
 ENTRYPOINT [ "/user" ]

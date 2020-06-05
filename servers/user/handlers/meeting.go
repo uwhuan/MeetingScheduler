@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"MeetingScheduler/servers/user/model"
+	"MeetingScheduler/servers/user/sessions"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -8,18 +10,18 @@ import (
 	"reflect"
 	"strconv"
 	"time"
-
-	"github.com/my/repo/ljchen17/final-project/MeetingScheduler/servers/user/model"
-	"github.com/my/repo/ljchen17/final-project/MeetingScheduler/servers/user/sessions"
 )
 
 func (ctx *HandlerCtx) GetUserIDFromSession(r *http.Request) (int64, error) {
-	session, _ := sessions.GetSessionID(r, ctx.SigningKey)
-
-	stateRet := SessionState{}
-	err := ctx.SessionStore.Get(session, &stateRet)
+	session, err := sessions.GetSessionID(r, ctx.SigningKey)
 	if err != nil {
-		log.Fatalf("error getting userID from session", err)
+		return -1, err
+	}
+	stateRet := SessionState{}
+	err = ctx.SessionStore.Get(session, &stateRet)
+	if err != nil {
+		log.Println("error getting userID from session", err)
+		return -1, err
 	}
 
 	return stateRet.User.UID, nil
@@ -70,8 +72,6 @@ GetUserMeetingsHandler handles requests for the "meetings" resource.
 GET request meetings that a user has created/have attended/will attended
 */
 func (ctx *HandlerCtx) GetUserMeetingsHandler(w http.ResponseWriter, r *http.Request) {
-
-	// YOU HAVE DONE GETTING QUERY PARAM IN SUMMARY TASK!!
 
 	userId, err := ctx.GetUserIDFromSession(r)
 	if err != nil {
@@ -145,7 +145,6 @@ func (ctx *HandlerCtx) GetMeetingByIDHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// TODO: SHOULD RETURN MEETING DETAILS BY COMBINING THE above MEETING with the new Participants query!
 	participantIds, err := ctx.UserStore.GetMeetingParticipants(meetingIdInt)
 	if err != nil {
 		http.Error(w, "Error getting the participants from database", http.StatusInternalServerError)
