@@ -15,4 +15,5 @@ type GroupReturnBody struct {
 	GroupInfo *Group
 	Meetings  []*Meeting
 	Members   []*User
+	Guest     []*DisplayGuest
 }

@@ -192,9 +192,15 @@ func (ctx *Context) SpecificGroupsHandler(w http.ResponseWriter, r *http.Request
 			return
 		}
 
+		// TESTING: Insert into db
+		guestID := model.GenerateRandomID()
+		_, err := ctx.Store.InsertGuest(guestID, guest.Email, guest.DisplayName, gid, 0, uid) //Comment this
+		if !dbErrorHandle(w, "insert guest", err) {
+			return
+		}
+
 		// Generate an invitation link with the email
-		uri := model.CreateGroupInvitation(guest.DisplayName, guest.Email, gid)
-		link := r.Host + version + "/guest/" + uri
+		link := fmt.Sprintf("%s/%s/guest/%s/%d/groups/%d", r.Host, version, guest.Email, guestID, gid)
 
 		// response with the link
 		respondWithHeader(w, typeText, []byte(link), http.StatusCreated)
@@ -300,7 +306,7 @@ func (ctx *Context) GroupsMeetingHandler(w http.ResponseWriter, r *http.Request)
 		}
 
 		// Response
-		respondWithHeader(w, typeText, res, http.StatusCreated)
+		respondWithHeader(w, typeJSON, res, http.StatusCreated)
 	}
 
 }
@@ -415,9 +421,15 @@ func (ctx *Context) SpecificGroupsMeetingHandler(w http.ResponseWriter, r *http.
 			return
 		}
 
+		// TESTING: Insert into db
+		guestID := model.GenerateRandomID()
+		_, err := ctx.Store.InsertGuest(guestID, guest.Email, guest.DisplayName, gid, mid, uid) //Comment this
+		if !dbErrorHandle(w, "insert guest", err) {
+			return
+		}
+
 		// Generate an invitation link with the email
-		uri := model.CreateMeetingInvitation(guest.DisplayName, guest.Email, mid)
-		link := r.Host + version + "/guest/" + uri
+		link := fmt.Sprintf("%s/%s/guest/%s/%d/meetings/%d", r.Host, version, guest.Email, guestID, mid)
 
 		// response with the link
 		respondWithHeader(w, typeText, []byte(link), http.StatusCreated)
@@ -517,6 +529,7 @@ func (ctx *Context) ScheduleHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// SpecificScheduleHandler handles request for a schedule with given id from url
 func (ctx *Context) SpecificScheduleHandler(w http.ResponseWriter, r *http.Request) {
 	// Only support DELETE, PATCH method
 	if r.Method != "DELETE" && r.Method != "PATCH" {

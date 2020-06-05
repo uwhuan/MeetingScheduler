@@ -19,4 +19,5 @@ type MeetingReturnBody struct {
 	MeetingInfo  *Meeting
 	Schedules    []*Schedule
 	Participants []*User
+	Guests       []*DisplayGuest
 }
