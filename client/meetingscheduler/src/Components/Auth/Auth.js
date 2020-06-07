@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import PageTypes from '../../Constants/PageTypes/PageTypes';
 import SignUp from './Components/SignUp/SignUp';
 import SignIn from './Components/SignIn/SignIn';
+import "./Styles/Styles.css";
 import ForgotPassword from './Components/ForgotPassword/ForgotPassword';
 
 /**

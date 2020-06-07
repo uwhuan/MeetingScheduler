@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PageTypes from '../../../../Constants/PageTypes/PageTypes';
+import './Styles/MainPageContent.css';
 
 export class FirstPageContent extends Component {
     render() {

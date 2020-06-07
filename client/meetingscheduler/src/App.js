@@ -12,9 +12,7 @@ class App extends Component {
     this.state = {
       page: localStorage.getItem("Authorization") ? PageTypes.signedInMain : PageTypes.signIn,
       authToken: localStorage.getItem("Authorization") || null,
-      user: null,
-      thread: null,
-      post: null
+      user: null
     }
 
     this.getCurrentUser()
@@ -92,8 +90,6 @@ class App extends Component {
   setPost = (post) => {
     this.setState({ post });
   }
-
-
 
 
   render() {

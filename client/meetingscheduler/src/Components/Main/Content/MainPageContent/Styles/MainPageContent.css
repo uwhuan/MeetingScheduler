@@ -1,0 +1,145 @@
+nav{
+    position: fixed;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+    width: 100%;
+    background-color: darkslateblue;
+    text-align: center;
+    left: 0;
+    top: 0;
+    z-index: 999999;
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+nav ul {
+    display: flex;
+    margin: 0;
+    margin-top: 5px;
+    padding: 0;
+    border-radius: 10px;
+}
+
+nav ul li {
+    list-style: none;
+    background: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav ul li button{
+    margin-right: 10px;
+    outline: none;
+    text-decoration: none;
+    padding: 8px 20px;
+    background: none;
+    border: none;
+    color: white;
+    border-radius: 20px;
+    font-size: 13px;
+    text-align: center;
+    transition: 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+nav ul li button:hover{
+    background: red;
+    transform: translateY(-3px);
+}
+
+.sign-out button {
+
+    background-color: grey;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    transition: 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sign-out button:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+    transform: translateY(-6px);
+    opacity: 1;
+    cursor: pointer;
+}
+
+.intro h1 {
+    margin-top: 70px;
+}
+
+.profile-page h1 {
+    margin-top: 70px;
+}
+
+.profile-page button {
+
+    background-color: grey;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    transition: 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.profile-page button:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+    transform: translateY(-6px);
+    opacity: 1;
+    cursor: pointer;
+}
+
+.updateprofilebtn {
+
+    background-color: grey;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    transition: 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.updateprofilebtn:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+    transform: translateY(-6px);
+    opacity: 1;
+    cursor: pointer;
+}
+
+.goback {
+
+    background-color: grey;
+    border: none;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    transition: 1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.goback:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+    transform: translateY(-6px);
+    opacity: 1;
+    cursor: pointer;
+}
+
+.meetings h1{
+    padding: 40px;
+}

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import api from '../../../../Constants/APIEndpoints/APIEndpoints';
 import PageTypes from '../../../../Constants/PageTypes/PageTypes';
 import Errors from '../../../Errors/Errors';
+import '../../Styles/MainPageContent.css'
 import Card from 'react-bootstrap/Card';
 import Button from 'react-bootstrap/Button';
 
@@ -16,7 +17,7 @@ class Profile extends Component {
     render() {
         return <div className="profile-page">
             <div className="profile">
-                <h1>Here's your <span className="red">Profile</span>:</h1>
+                <h1>Here's your Profile:</h1>
                 <Card style={{width: '40rem'}}>
                     <Card.Body>
                         <h2>{this.props.user.firstName} {this.props.user.lastName}</h2>

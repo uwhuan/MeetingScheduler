@@ -8,6 +8,11 @@ export default {
         sessions: "/v1/sessions",
         sessionsMine: "/v1/sessions/mine",
         resetPasscode: "/v1/resetcodes",
-        passwords: "/v1/passwords/"
+        passwords: "/v1/passwords/",
+        groups: "v1/groups",
+        specificGroup: "v1/groups/",
+        meetings: "v1/users/meetings",
+        specificMeetings: "v1/users/meetings/"
+
     }
 }

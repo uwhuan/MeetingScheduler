@@ -79,7 +79,7 @@ class SignIn extends Component {
     render() {
         const values = this.state;
         const { error } = this.state;
-        return <>
+        return <div className="signin">
             <Errors error={error} setError={this.setError} />
             <h1>Welcome to Meeting Scheduler</h1>
             <h2>Please sign in here</h2>
@@ -90,7 +90,7 @@ class SignIn extends Component {
                 fields={this.fields} />
             <button onClick={(e) => this.props.setPage(e, PageTypes.signUp)}>Sign up instead</button>
             <button onClick={(e) => this.props.setPage(e, PageTypes.forgotPassword)}>Forgot password</button>
-        </>
+        </div>
     }
 }
 

@@ -5,6 +5,7 @@ import SignOutButton from './Components/SignOutButton/SignOutButton';
 import UpdateName from './Components/UpdateName/UpdateName';
 import UpdateAvatar from './Components/UpdateAvatar/UpdateAvatar';
 import Profile from './Components/Profile/Profile';
+import Meetings from './Components/Meetings/Meetings'
 import { BrowserRouter, Route, Switch, Link, NavLink, Redirect } from 'react-router-dom';
 const Main = ({ page, setPage, setAuthToken, setUser, user, thread, setThread, post, setPost}) => {
     let content = <></>
@@ -23,6 +24,9 @@ const Main = ({ page, setPage, setAuthToken, setUser, user, thread, setThread, p
         case PageTypes.profile:
             content = <Profile user={user} setUser={setUser} setPage={setPage}/>;
             break;
+        case PageTypes.meetings:
+            content = <Meetings user={user} setUser={setUser} setPage={setPage}/>;
+            break;
         default:
             content = <>Error, invalid path reached</>;
             contentPage = false;
@@ -38,6 +42,9 @@ const Main = ({ page, setPage, setAuthToken, setUser, user, thread, setThread, p
                         </li>
                         <li id="profile">
                             <div><button onClick={(e) => { setPage(e, PageTypes.profile) }}>PROFILE</button></div>
+                        </li>
+                        <li id="meetings">
+                            <div><button onClick={(e) => { setPage(e, PageTypes.meetings) }}>MEETINGS</button></div>
                         </li>
                     </ul>
                 </div>

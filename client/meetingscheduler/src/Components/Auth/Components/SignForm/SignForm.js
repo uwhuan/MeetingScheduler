@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const SignForm = ({ setField, submitForm, values, fields }) => {
-    return <>
+    return <div className="signin1">
         <form onSubmit={submitForm}>
             {fields.map(d => {
                 const { key, name } = d;
@@ -16,9 +16,9 @@ const SignForm = ({ setField, submitForm, values, fields }) => {
                     />
                 </div>
             })}
-            <input type="submit" value="Submit" />
+            <input type="submit" value="Submit" className="submitbtn" />
         </form>
-    </>
+    </div>
 }
 
 SignForm.propTypes = {

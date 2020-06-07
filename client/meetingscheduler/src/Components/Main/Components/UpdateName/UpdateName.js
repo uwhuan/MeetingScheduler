@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import api from '../../../../Constants/APIEndpoints/APIEndpoints';
 import Errors from '../../../Errors/Errors';
 import PageTypes from '../../../../Constants/PageTypes/PageTypes';
+import '../../Styles/MainPageContent.css'
 
 class UpdateName extends Component {
     constructor(props) {
@@ -59,8 +60,8 @@ class UpdateName extends Component {
                     <span>Last name: </span>
                     <input name={"lastName"} value={lastName} onChange={this.setValue} />
                 </div>
-                <input type="submit" value="Update Profile" />
-                <input type="submit" value="Go Back" onClick={(e) => this.props.setPage(e, PageTypes.profile)}/>
+                <input type="submit" value="Update Profile" className="updateprofilebtn" />
+                <input type="submit" value="Go Back" className="goback" onClick={(e) => this.props.setPage(e, PageTypes.profile)}/>
             </form>
         </div>
     }

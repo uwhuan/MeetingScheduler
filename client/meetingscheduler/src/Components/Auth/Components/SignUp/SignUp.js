@@ -111,7 +111,7 @@ class SignUp extends Component {
     render() {
         const values = this.state;
         const { error } = this.state;
-        return <>
+        return <div className="signup">
             <Errors error={error} setError={this.setError} />
             <SignForm
                 setField={this.setField}
@@ -119,7 +119,7 @@ class SignUp extends Component {
                 values={values}
                 fields={this.fields} />
             <button onClick={(e) => this.props.setPage(e, PageTypes.signIn)}>Sign in instead</button>
-        </>
+        </div>
     }
 }
 

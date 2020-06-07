@@ -4,5 +4,8 @@ export default {
     signedInMain: "SIGNEDIN_MAIN",
     signedInUpdateName: "SIGNEDIN_UPDATENAME",
     signedInUpdateAvatar: "SIGNEDIN_UPDATEAVATAR",
-    forgotPassword: "FORGOT_PASSWORD"
+    forgotPassword: "FORGOT_PASSWORD",
+    profile: "PROFILE",
+    meetings: "MEETINGS",
+    specificMeetings: "SPECIFICMEETINGS"
 }
