@@ -1,0 +1,125 @@
+import React, { Component } from 'react';
+import logo from './logo.svg';
+import './App.css';
+import Auth from './Components/Auth/Auth';
+import Main from './Components/Main/Main';
+import PageTypes from './Constants/PageTypes/PageTypes';
+import api from './Constants/APIEndpoints/APIEndpoints';
+
+class App extends Component {
+  constructor() {
+    super();
+    this.state = {
+      page: localStorage.getItem("Authorization") ? PageTypes.signedInMain : PageTypes.signIn,
+      authToken: localStorage.getItem("Authorization") || null,
+      user: null,
+      thread: null,
+      post: null
+    }
+
+    this.getCurrentUser()
+  }
+
+  /**
+   * @description Gets the users
+   */
+  getCurrentUser = async () => {
+    if (!this.state.authToken) {
+      return;
+    }
+    const response = await fetch(api.base + api.handlers.myuser, {
+      headers: new Headers({
+        "Authorization": this.state.authToken
+      })
+    });
+    if (response.status >= 300) {
+      alert("Unable to verify login. Logging out...");
+      localStorage.setItem("Authorization", "");
+      this.setAuthToken("");
+      this.setUser(null)
+      return;
+    }
+    const user = await response.json()
+    this.setUser(user);
+
+  }
+
+  /**
+   * @description sets the page type to sign in
+   */
+  setPageToSignIn = (e) => {
+    e.preventDefault();
+    this.setState({ page: PageTypes.signIn });
+  }
+
+  /**
+   * @description sets the page type to sign up
+   */
+  setPageToSignUp = (e) => {
+    e.preventDefault();
+    this.setState({ page: PageTypes.signUp });
+  }
+
+  setPage = (e, page) => {
+    this.setState({ page });
+    return false;
+  }
+
+  /**
+   * @description sets auth token
+   */
+  setAuthToken = (authToken) => {
+    this.setState({ authToken, page: authToken === "" ? PageTypes.signIn : PageTypes.signedInMain });
+  }
+
+  /**
+   * @description sets the user
+   */
+  setUser = (user) => {
+    this.setState({ user });
+  }
+
+  /**
+   * @description sets the user
+   */
+  setThread = (thread) => {
+    this.setState({ thread });
+  }
+
+  /**
+   * @description sets the post
+   */
+  setPost = (post) => {
+    this.setState({ post });
+  }
+
+
+
+
+  render() {
+    const { page, user, thread, post } = this.state;
+    return (
+        <div>
+          {user ?
+              <Main page={page}
+                    setPage={this.setPage}
+                    setAuthToken={this.setAuthToken}
+                    user={user}
+                    setUser={this.setUser}
+                    thread={thread}
+                    setThread={this.setThread}
+                    post={post}
+                    setPost={this.setPost}
+                    setChannel={this.setChannel} />
+              :
+            <Auth page={page}
+                    setPage={this.setPage}
+                    setAuthToken={this.setAuthToken}
+                    setUser={this.setUser} />
+          }
+        </div>
+    );
+  }
+}
+
+export default App;

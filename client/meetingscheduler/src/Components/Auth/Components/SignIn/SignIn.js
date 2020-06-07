@@ -81,6 +81,8 @@ class SignIn extends Component {
         const { error } = this.state;
         return <>
             <Errors error={error} setError={this.setError} />
+            <h1>Welcome to Meeting Scheduler</h1>
+            <h2>Please sign in here</h2>
             <SignForm
                 setField={this.setField}
                 submitForm={this.submitForm}
